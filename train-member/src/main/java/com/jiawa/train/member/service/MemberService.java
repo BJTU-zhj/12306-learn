@@ -31,6 +31,7 @@ public class MemberService {
         Member member = new Member();
         member.setId(System.currentTimeMillis());
         member .setMobile(memberRegisterDTO.getMobile());
+        memberMapper.insert(member);
         return member.getId();
     }
 
