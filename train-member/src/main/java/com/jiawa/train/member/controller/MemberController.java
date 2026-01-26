@@ -4,6 +4,7 @@ import com.jiawa.train.common.resp.CommonResp;
 import com.jiawa.train.member.DTO.MemberRegisterDTO;
 import com.jiawa.train.member.service.MemberService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public CommonResp<Long> register(MemberRegisterDTO memberRegisterDTO){
+    public CommonResp<Long> register(@Valid MemberRegisterDTO memberRegisterDTO){
         long register = memberService.register(memberRegisterDTO);
         return new CommonResp<>(register);
     }
