@@ -1,6 +1,8 @@
 package com.jiawa.train.member.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.jiawa.train.common.exception.BusinessException;
+import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.member.DTO.MemberRegisterDTO;
 import com.jiawa.train.member.domain.Member;
 import com.jiawa.train.member.domain.MemberExample;
@@ -26,7 +28,7 @@ public class MemberService {
         memberExample.createCriteria().andMobileEqualTo(memberRegisterDTO.getMobile());
         List<Member> memberList = memberMapper.selectByExample(memberExample);
         if(CollUtil.isNotEmpty(memberList)){
-            throw new RuntimeException("手机号已存在");
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_EXIST);
         }
         Member member = new Member();
         member.setId(System.currentTimeMillis());
