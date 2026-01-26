@@ -1,39 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.1</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
+		<version>3.2.5</version>
+		<relativePath/> </parent>
 	<groupId>com.jiawa</groupId>
 	<artifactId>train</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>train</name>
 	<description>train</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
+
 	<modules>
 		<module>train-member</module>
-		<module>train-commen</module>
+		<module>train-common</module>
+		<module>train-gateway</module>
 	</modules>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2025.1.0</spring-cloud.version>
+		<spring-cloud.version>2023.0.1</spring-cloud.version>
 	</properties>
 
 	<dependencyManagement>
@@ -61,17 +50,22 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-aop</artifactId>
-				<version>2.7.14</version>
+				<version>3.2.5</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.jiawa</groupId>
-				<artifactId>train-commen</artifactId>
+				<artifactId>train-common</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 		</dependencies>
 	</dependencyManagement>
-
-
 </project>
+
+<!--		spring-boot-starter-parent	项目的“灵魂”。它定义了 Java 版本、源码编码，并预设了成百上千个常用 Jar 包的版本号，确保你引入 Spring 组件时不需要手动写版本号。-->
+<!--		spring-cloud-dependencies	微服务“全家桶”管理。它不引入具体代码，而是规定了 Feign、Gateway、Ribbon 等微服务组件的版本兼容矩阵。-->
+<!--		fastjson	JSON 处理工具。阿里巴巴出品，用于对象与字符串之间的转换。-->
+<!--		hutool-all	Java 工具类库。包含了加密、日期处理、正则、字符串操作等极其丰富的常用工具。-->
+<!--		spring-boot-starter-aop	切面编程。通常用于实现日志记录、权限校验或性能监控（12306 教程中常用来打印接口耗时）。-->
+<!--		train-common	内部公共包。你自己写的代码，存放所有模块通用的实体类、异常处理和工具类。-->
