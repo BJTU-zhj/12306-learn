@@ -29,7 +29,7 @@ public class ControllerExceptionHandler {
         CommonResp commonResp = new CommonResp();
         commonResp.setSuccess(false);
         commonResp.setMessage("开发错误，请联系管理员");
-        LOG.error("服务异常",e);
+        LOG.error("系统异常",e);
         return commonResp;
     }
 
@@ -58,7 +58,7 @@ public class ControllerExceptionHandler {
         }
 
         // 2. 记录错误日志
-        LOG.error("系统异常：{}", logMessage.toString());
+        LOG.error("业务异常：{}", logMessage.toString());
         commonResp.setSuccess(false);
         commonResp.setMessage(allErrors.get(0).getDefaultMessage());
         return commonResp;
