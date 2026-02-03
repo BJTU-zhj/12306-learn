@@ -13,3 +13,9 @@ POST http://localhost:8000/member/member/sendcode
 Content-Type: application/x-www-form-urlencoded
 
 mobile=13133589548
+
+###
+POST http://localhost:8000/member/member/login
+Content-Type: application/x-www-form-urlencoded
+
+mobile=13133589541&code=8888

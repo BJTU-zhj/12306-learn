@@ -33,6 +33,7 @@ public class ControllerExceptionHandler {
         return commonResp;
     }
 
+    //自定义异常处理
     @ExceptionHandler(value = BusinessException.class)
     @ResponseBody
     public CommonResp exceptionHandler(BusinessException e){
@@ -43,6 +44,7 @@ public class ControllerExceptionHandler {
         return commonResp;
     }
 
+    //参数校验异常
     @ExceptionHandler(value = MethodArgumentNotValidException .class)
     @ResponseBody
     public CommonResp exceptionHandler(MethodArgumentNotValidException e){
