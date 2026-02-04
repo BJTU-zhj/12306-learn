@@ -89,7 +89,7 @@ public class MemberService {
             if("8888".equals(memberLoginDTO.getCode())){
                 //将memberLoginDTO的内容快速复制给memberLoginVO对象
                 MemberLoginVO memberLoginVO = new MemberLoginVO();
-                BeanUtils.copyProperties(memberLoginDTO,memberLoginVO);
+                BeanUtils.copyProperties(selectMember.get(0),memberLoginVO);
                 return memberLoginVO;
             }
             else {
