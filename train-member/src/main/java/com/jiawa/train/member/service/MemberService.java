@@ -3,6 +3,7 @@ package com.jiawa.train.member.service;
 import cn.hutool.core.collection.CollUtil;
 import com.jiawa.train.common.exception.BusinessException;
 import com.jiawa.train.common.exception.BusinessExceptionEnum;
+import com.jiawa.train.common.util.JwtUtil;
 import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.member.DTO.MemberLoginDTO;
 import com.jiawa.train.member.DTO.MemberRegisterDTO;
@@ -26,6 +27,9 @@ public class MemberService {
 
     @Resource
     private MemberMapper memberMapper;
+
+    @Resource
+    private JwtUtil jwtUtil;
 
     public int count(){
         return Math.toIntExact(memberMapper.countByExample(null));
@@ -87,9 +91,12 @@ public class MemberService {
         }
         else {
             if("8888".equals(memberLoginDTO.getCode())){
+                //生成JWT
+                String token=jwtUtil.createToken(selectMember.get(0).getId(),selectMember.get(0).getMobile());
                 //将memberLoginDTO的内容快速复制给memberLoginVO对象
                 MemberLoginVO memberLoginVO = new MemberLoginVO();
                 BeanUtils.copyProperties(selectMember.get(0),memberLoginVO);
+                memberLoginVO.setToken(token);
                 return memberLoginVO;
             }
             else {

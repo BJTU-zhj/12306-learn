@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class MemberLoginVO {
     public Long id;
     public String mobile;
+    public String token;
 
 }
