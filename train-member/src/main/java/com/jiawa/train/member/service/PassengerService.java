@@ -1,6 +1,7 @@
 package com.jiawa.train.member.service;
 
 import cn.hutool.core.date.DateTime;
+import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.member.DTO.PassengerSaveDTO;
 import com.jiawa.train.member.domain.Passenger;
@@ -20,6 +21,7 @@ public class PassengerService {
         DateTime now=DateTime.now();
         Passenger passenger = new Passenger();
         BeanUtils.copyProperties(passengerSaveDTO,passenger);
+        passenger.setMemberId(LoginMemberContext.getId());
         passenger.setId(SnowUtil.getSnowflakeId());
         passenger.setCreateTime(now);
         passenger.setUpdateTime(now);

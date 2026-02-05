@@ -1,7 +1,6 @@
 package com.jiawa.train.member.DTO;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Date;
@@ -10,7 +9,6 @@ import java.util.Date;
 public class PassengerSaveDTO {
     private Long id;
 
-    @NotNull(message = "【会员ID】不能为空")
     private Long memberId;
 
     @NotBlank(message = "【名字】不能为空")
