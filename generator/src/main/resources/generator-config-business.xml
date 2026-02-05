@@ -23,9 +23,9 @@
 
         <!-- 配置数据源，需要根据自己的项目修改 -->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://rm-cn-m1e4mn8120003u9o.rwlb.rds.aliyuncs.com/train_member?serverTimezone=Asia/Shanghai"
-                        userId="train_member"
-                        password="ZXCzxc123">
+                        connectionURL="jdbc:mysql://localhost/train_member?serverTimezone=Asia/Shanghai"
+                        userId="train-member"
+                        password="123456">
         </jdbcConnection>
 
         <!-- domain类的位置 targetProject是相对pom.xml的路径-->
@@ -41,7 +41,7 @@
                              targetPackage="com.jiawa.train.member.mapper"
                              type="XMLMAPPER"/>
 
-        <table tableName="member" domainObjectName="Member"/>
-<!--        <table tableName="passenger" domainObjectName="Passenger"/>-->
+<!--        <table tableName="member" domainObjectName="Member"/>-->
+        <table tableName="passenger" domainObjectName="Passenger"/>
     </context>
 </generatorConfiguration>
