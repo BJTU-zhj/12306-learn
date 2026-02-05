@@ -1,8 +1,8 @@
-package com.jiawa.train.common.util;
+package com.jiawa.train.gateway.util;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWTUtil;
-import com.jiawa.train.common.properties.JwtUtilProperties;
+import com.jiawa.train.gateway.properties.JwtUtilProperties;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
