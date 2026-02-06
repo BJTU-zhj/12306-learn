@@ -1,5 +1,6 @@
 package com.jiawa.train.member.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -14,13 +15,16 @@ import com.jiawa.train.member.domain.Passenger;
 import com.jiawa.train.member.domain.PassengerExample;
 import com.jiawa.train.member.mapper.PassengerMapper;
 import jakarta.annotation.Resource;
-import cn.hutool.core.bean.BeanUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class PassengerService {
+
+    private static final Logger LOG= LoggerFactory.getLogger(PassengerService.class);
 
     @Resource
     private PassengerMapper passengerMapper;
@@ -29,11 +33,17 @@ public class PassengerService {
     public void save(PassengerSaveDTO passengerSaveDTO){
         DateTime now=DateTime.now();
         Passenger passenger = BeanUtil.copyProperties(passengerSaveDTO, Passenger.class);
-        passenger.setMemberId(LoginMemberContext.getId());
-        passenger.setId(SnowUtil.getSnowflakeId());
-        passenger.setCreateTime(now);
-        passenger.setUpdateTime(now);
-        passengerMapper.insert(passenger);
+        if(ObjectUtil.isEmpty(passenger.getId())) {
+            passenger.setMemberId(LoginMemberContext.getId());
+            passenger.setId(SnowUtil.getSnowflakeId());
+            passenger.setCreateTime(now);
+            passenger.setUpdateTime(now);
+            passengerMapper.insert(passenger);
+        }else{
+            passenger.setUpdateTime( now);
+            LOG.info("开始更新乘客信息,id:{}", passenger.getId());
+            passengerMapper.updateByPrimaryKey( passenger);
+        }
     }
 
     //查询列表
