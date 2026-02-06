@@ -1,7 +1,7 @@
 package com.jiawa.train.common.context;
 
 
-import com.jiawa.train.common.resp.MemberLoginResp;
+import com.jiawa.train.common.VO.MemberLoginResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

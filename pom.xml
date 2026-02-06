@@ -66,6 +66,13 @@
 				<artifactId>mybatis-spring-boot-starter</artifactId>
 				<version>3.0.3</version>
 			</dependency>
+
+			<dependency>
+				<groupId>com.github.pagehelper</groupId>
+				<artifactId>pagehelper-spring-boot-starter</artifactId>
+				<version>1.4.7</version>
+			</dependency>
+
 			<!-- 集成mysql连接 -->
 <!--			<dependency>-->
 <!--				<groupId>mysql</groupId>-->

@@ -2,6 +2,9 @@ package com.jiawa.train.member.service;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.member.DTO.PaseengerQueryDTO;
@@ -34,15 +37,22 @@ public class PassengerService {
     }
 
     //查询列表
-    public List<PassengerQueryVO> queryList(PaseengerQueryDTO paseengerQueryDTO){
+    public PageVO<PassengerQueryVO> queryList(PaseengerQueryDTO paseengerQueryDTO){
         PassengerExample passengerExample = new PassengerExample();
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
         if(ObjectUtil.isNotEmpty(paseengerQueryDTO.getMemberId())){
             criteria.andMemberIdEqualTo(paseengerQueryDTO.getMemberId());
         }
+        PageHelper.startPage(paseengerQueryDTO.getPage(),paseengerQueryDTO.getSize());
         List<Passenger> passengerList =passengerMapper.selectByExample(passengerExample);
-        return BeanUtil.copyToList(passengerList, PassengerQueryVO.class);
+        ;
+        //固定用插件获取查询总数
+        PageInfo<Passenger> pageInfo = new PageInfo<>(passengerList);
 
+        PageVO<PassengerQueryVO> pageVO = new PageVO<>();
+        pageVO.setList(BeanUtil.copyToList(passengerList, PassengerQueryVO.class));
+        pageVO.setTotal(pageInfo.getTotal());
 
+        return pageVO;
     }
 }

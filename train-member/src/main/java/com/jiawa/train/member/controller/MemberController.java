@@ -1,6 +1,6 @@
 package com.jiawa.train.member.controller;
 
-import com.jiawa.train.common.resp.CommonResp;
+import com.jiawa.train.common.VO.CommonResp;
 import com.jiawa.train.member.DTO.MemberLoginDTO;
 import com.jiawa.train.member.DTO.MemberRegisterDTO;
 import com.jiawa.train.member.DTO.MemberSendCodeDTO;

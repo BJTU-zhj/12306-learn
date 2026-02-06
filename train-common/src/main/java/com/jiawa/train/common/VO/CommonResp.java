@@ -1,4 +1,4 @@
-package com.jiawa.train.common.resp;
+package com.jiawa.train.common.VO;
 
 public class CommonResp<T> {
 
