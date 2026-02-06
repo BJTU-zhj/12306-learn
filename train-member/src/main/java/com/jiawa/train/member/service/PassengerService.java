@@ -39,6 +39,7 @@ public class PassengerService {
     //查询列表
     public PageVO<PassengerQueryVO> queryList(PaseengerQueryDTO paseengerQueryDTO){
         PassengerExample passengerExample = new PassengerExample();
+        passengerExample.setOrderByClause("id desc");
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
         if(ObjectUtil.isNotEmpty(paseengerQueryDTO.getMemberId())){
             criteria.andMemberIdEqualTo(paseengerQueryDTO.getMemberId());
