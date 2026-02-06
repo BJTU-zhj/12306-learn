@@ -66,4 +66,10 @@ public class PassengerService {
 
         return pageVO;
     }
+
+    //删除,根据id
+    public void delete(Long id){
+        passengerMapper.deleteByPrimaryKey(id);
+    }
+
 }
