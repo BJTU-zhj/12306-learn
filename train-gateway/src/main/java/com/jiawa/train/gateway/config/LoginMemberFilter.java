@@ -28,7 +28,7 @@ public class LoginMemberFilter implements GlobalFilter, Ordered {
         //过滤不需要验证jwt的地址
         if(path.contains("admin")
         || path.contains("hello")
-        || path.contains("member/member/sendcode")
+        || path.contains("member/member/send-code")
         || path.contains("member/member/login")){
             LOG.info("不需要验证JWT，{}", path);
             return chain.filter(exchange);

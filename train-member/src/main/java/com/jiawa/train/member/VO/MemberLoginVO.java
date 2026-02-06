@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberLoginVO {
+
+
     public Long id;
     public String mobile;
     public String token;
