@@ -7,3 +7,8 @@ token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6
   "idCard": "131024199806295362",
   "type": "1"
 }
+
+###
+GET http://localhost:8000/member/passenger/query-list
+Accept: application/json
+token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6IjEzMDAwMDAwMDAwIiwiaWQiOjIwMTg4NzYwMTI5MDQ4NDEyMTYsImV4cCI6MTc3MzkwMjk1OSwiaWF0IjoxNzcwMzAyOTU5fQ.49UXDrgk-vH8jRZyziniWZc82iTayH-qSaZeFd3IiNQ

@@ -1,14 +1,20 @@
 package com.jiawa.train.member.service;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.ObjectUtil;
 import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.common.util.SnowUtil;
+import com.jiawa.train.member.DTO.PaseengerQueryDTO;
 import com.jiawa.train.member.DTO.PassengerSaveDTO;
+import com.jiawa.train.member.VO.PassengerQueryVO;
 import com.jiawa.train.member.domain.Passenger;
+import com.jiawa.train.member.domain.PassengerExample;
 import com.jiawa.train.member.mapper.PassengerMapper;
 import jakarta.annotation.Resource;
-import org.springframework.beans.BeanUtils;
+import cn.hutool.core.bean.BeanUtil;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PassengerService {
@@ -19,12 +25,24 @@ public class PassengerService {
     //保存
     public void save(PassengerSaveDTO passengerSaveDTO){
         DateTime now=DateTime.now();
-        Passenger passenger = new Passenger();
-        BeanUtils.copyProperties(passengerSaveDTO,passenger);
+        Passenger passenger = BeanUtil.copyProperties(passengerSaveDTO, Passenger.class);
         passenger.setMemberId(LoginMemberContext.getId());
         passenger.setId(SnowUtil.getSnowflakeId());
         passenger.setCreateTime(now);
         passenger.setUpdateTime(now);
         passengerMapper.insert(passenger);
+    }
+
+    //查询列表
+    public List<PassengerQueryVO> queryList(PaseengerQueryDTO paseengerQueryDTO){
+        PassengerExample passengerExample = new PassengerExample();
+        PassengerExample.Criteria criteria = passengerExample.createCriteria();
+        if(ObjectUtil.isNotEmpty(paseengerQueryDTO.getMemberId())){
+            criteria.andMemberIdEqualTo(paseengerQueryDTO.getMemberId());
+        }
+        List<Passenger> passengerList =passengerMapper.selectByExample(passengerExample);
+        return BeanUtil.copyToList(passengerList, PassengerQueryVO.class);
+
+
     }
 }

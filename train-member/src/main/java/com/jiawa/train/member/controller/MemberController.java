@@ -29,7 +29,7 @@ public class MemberController {
         return new CommonResp<>(register);
     }
 
-    @PostMapping("/sendcode")
+    @PostMapping("/send-code")
     public CommonResp sendCode(@Valid @RequestBody MemberSendCodeDTO memberSendCodeDTO){
         memberService.sendCode(memberSendCodeDTO);
         return new CommonResp<>();
