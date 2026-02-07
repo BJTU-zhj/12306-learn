@@ -3,7 +3,7 @@ package com.jiawa.train.member.controller;
 import com.jiawa.train.common.VO.CommonResp;
 import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.context.LoginMemberContext;
-import com.jiawa.train.member.DTO.PaseengerQueryDTO;
+import com.jiawa.train.member.DTO.PassengerQueryDTO;
 import com.jiawa.train.member.DTO.PassengerSaveDTO;
 import com.jiawa.train.member.VO.PassengerQueryVO;
 import com.jiawa.train.member.service.PassengerService;
@@ -25,7 +25,7 @@ public class PassengerController {
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageVO<PassengerQueryVO>> queryList(@Valid PaseengerQueryDTO paseengerQueryDTO){
+    public CommonResp<PageVO<PassengerQueryVO>> queryList(@Valid PassengerQueryDTO paseengerQueryDTO){
         paseengerQueryDTO.setMemberId(LoginMemberContext.getId());
         PageVO<PassengerQueryVO> pageVO = passengerService.queryList(paseengerQueryDTO);
         return new CommonResp<>(pageVO);

@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class PaseengerQueryDTO extends PageDTO {
+public class PassengerQueryDTO extends PageDTO {
 
     public Long memberId;
 

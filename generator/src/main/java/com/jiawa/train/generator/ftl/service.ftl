@@ -8,7 +8,7 @@ import com.github.pagehelper.PageInfo;
 import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.common.util.SnowUtil;
-import com.jiawa.train.member.DTO.PassengerQueryDTO;
+import com.jiawa.train.member.DTO.${Domain}QueryDTO;
 import com.jiawa.train.member.DTO.PassengerSaveDTO;
 import com.jiawa.train.member.VO.PassengerQueryVO;
 import com.jiawa.train.member.domain.Passenger;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PassengerService {
+public class ${Domain}Service {
 
     private static final Logger LOG= LoggerFactory.getLogger(PassengerService.class);
 
@@ -47,14 +47,14 @@ public class PassengerService {
     }
 
     //查询列表
-    public PageVO<PassengerQueryVO> queryList(PassengerQueryDTO passengerQueryDTO){
+    public PageVO<PassengerQueryVO> queryList(${Domain}QueryDTO ${domain}QueryDTO){
         PassengerExample passengerExample = new PassengerExample();
         passengerExample.setOrderByClause("id desc");
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
-        if(ObjectUtil.isNotEmpty(passengerQueryDTO.getMemberId())){
-            criteria.andMemberIdEqualTo(passengerQueryDTO.getMemberId());
+        if(ObjectUtil.isNotEmpty(${domain}QueryDTO.getMemberId())){
+            criteria.andMemberIdEqualTo(${domain}QueryDTO.getMemberId());
         }
-        PageHelper.startPage(passengerQueryDTO.getPage(),passengerQueryDTO.getSize());
+        PageHelper.startPage(${domain}QueryDTO.getPage(),${domain}QueryDTO.getSize());
         List<Passenger> passengerList =passengerMapper.selectByExample(passengerExample);
         ;
         //固定用插件获取查询总数

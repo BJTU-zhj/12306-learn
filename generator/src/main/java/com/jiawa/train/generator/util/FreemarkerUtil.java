@@ -21,9 +21,9 @@ public class FreemarkerUtil {
      * 读模板
      */
     public static void initConfig(String ftlName) throws IOException {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_32);
         cfg.setDirectoryForTemplateLoading(new File(ftlPath));
-        cfg.setObjectWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_31));
+        cfg.setObjectWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_32));
         temp = cfg.getTemplate(ftlName);
     }
 
