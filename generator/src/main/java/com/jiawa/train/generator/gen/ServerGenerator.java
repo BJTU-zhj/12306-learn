@@ -1,21 +1,23 @@
 package com.jiawa.train.generator.gen;
 
 import com.jiawa.train.generator.util.FreemarkerUtil;
+import freemarker.template.TemplateException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ServerGenerator {
 
-    static String servicePath = "[module-all]\\src\\main\\java\\com\\jiawa\\train\\[module]\\service\\";
+    static String serverPath = "[module-all]\\src\\main\\java\\com\\jiawa\\train\\[module]\\";
     static String pomPath = "generator\\pom.xml";
     static {
-        new File(servicePath).mkdirs();
+        new File(serverPath).mkdirs();
     }
 
     public static void main(String [] args) throws Exception {
@@ -25,9 +27,9 @@ public class ServerGenerator {
         String moduleName = generatorPath.replace("src/main/resources/generator-config-","");
         moduleName=moduleName.replace(".xml","");
         System.out.println("模块名字："+moduleName);
-        servicePath = servicePath.replace("[module-all]","train-"+moduleName);
-        servicePath = servicePath.replace("[module]",moduleName);
-        System.out.println("servicePath:"+servicePath);
+        serverPath = serverPath.replace("[module-all]","train-"+moduleName);
+        serverPath = serverPath.replace("[module]",moduleName);
+        System.out.println("servicePath:"+ serverPath);
 
         // 读取table节点
         Document document = new SAXReader().read("generator/" + generatorPath);
@@ -52,8 +54,16 @@ public class ServerGenerator {
         map.put("do_main",do_main);
         System.out.printf("组装参数:"+ map.toString());
 
-        FreemarkerUtil.initConfig("service.ftl");
-        FreemarkerUtil.generator(servicePath+Domain+"Service.java",map);
+        gen(Domain, map,"service");
+        gen(Domain, map,"controller");
+    }
+
+    private static void gen(String Domain, Map<String, Object> map,String  target) throws IOException, TemplateException {
+        FreemarkerUtil.initConfig(target+".ftl");
+        String Target=target.substring(0,1).toUpperCase()+target.substring(1);
+        String toPath=serverPath + target+"\\";
+        new File(toPath).mkdirs();
+        FreemarkerUtil.generator(toPath+Domain +Target+".java", map);
     }
 
     //读取pom文件内的configurationFile节点获取生成器的xml文件位置
