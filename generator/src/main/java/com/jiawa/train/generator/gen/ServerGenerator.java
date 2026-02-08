@@ -16,7 +16,7 @@ import java.util.*;
 public class ServerGenerator {
 
     static boolean readOnly=false;
-    static String vuePath="web/src/views/main/";
+    static String vuePath="admin/src/views/main/";
     static String serverPath = "[module-all]\\src\\main\\java\\com\\jiawa\\train\\[module]\\";
     static String pomPath = "generator\\pom.xml";
     static {
@@ -77,15 +77,15 @@ public class ServerGenerator {
         map.put("readOnly",readOnly);
         System.out.printf("组装参数:"+ map.toString());
 
-//        gen(Domain, map,"service","service");
-//        gen(Domain, map,"controller","controller");
-//        //target是模板名字
-//        gen(Domain, map,"DTO","saveDTO");
-//        gen(Domain, map,"DTO","queryDTO");
-//        gen(Domain, map,"VO","queryVO");
+        gen(Domain, map,"service","service");
+        gen(Domain, map,"controller","controller");
+        //target是模板名字
+        gen(Domain, map,"DTO","saveDTO");
+        gen(Domain, map,"DTO","queryDTO");
+        gen(Domain, map,"VO","queryVO");
 
         //生成vue模板，与上边不一样
-        genVue(do_main, map);
+        genVue(Domain, map);
 
     }
 
