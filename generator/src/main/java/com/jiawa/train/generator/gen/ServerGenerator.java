@@ -74,10 +74,12 @@ public class ServerGenerator {
         map.put("module", moduleName);
         System.out.printf("组装参数:"+ map.toString());
 
-        gen(Domain, map,"service","service");
-        gen(Domain, map,"controller","controller");
-        //target是模板名字
-        gen(Domain, map,"DTO","saveDTO");
+//        gen(Domain, map,"service","service");
+//        gen(Domain, map,"controller","controller");
+//        //target是模板名字
+//        gen(Domain, map,"DTO","saveDTO");
+        gen(Domain, map,"DTO","queryDTO");
+        gen(Domain, map,"VO","queryVO");
     }
 
     private static void gen(String Domain, Map<String, Object> map,String packageName,String target) throws IOException, TemplateException {
