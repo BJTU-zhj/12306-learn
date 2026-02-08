@@ -74,8 +74,8 @@ public class ServerGenerator {
         map.put("module", moduleName);
         System.out.printf("组装参数:"+ map.toString());
 
-//        gen(Domain, map,"service");
-//        gen(Domain, map,"controller");
+        gen(Domain, map,"service","service");
+        gen(Domain, map,"controller","controller");
         //target是模板名字
         gen(Domain, map,"DTO","saveDTO");
     }

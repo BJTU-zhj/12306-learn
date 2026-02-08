@@ -1,12 +1,12 @@
-package com.jiawa.train.member.controller;
+package com.jiawa.train.${module}.controller;
 
 import com.jiawa.train.common.VO.CommonResp;
 import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.context.LoginMemberContext;
-import com.jiawa.train.member.DTO.${Domain}QueryDTO;
-import com.jiawa.train.member.DTO.${Domain}SaveDTO;
-import com.jiawa.train.member.VO.${Domain}QueryVO;
-import com.jiawa.train.member.service.${Domain}Service;
+import com.jiawa.train.${module}.DTO.${Domain}QueryDTO;
+import com.jiawa.train.${module}.DTO.${Domain}SaveDTO;
+import com.jiawa.train.${module}.VO.${Domain}QueryVO;
+import com.jiawa.train.${module}.service.${Domain}Service;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ public class ${Domain}Controller {
 
     @GetMapping("/query-list")
     public CommonResp<PageVO<${Domain}QueryVO>> queryList(@Valid ${Domain}QueryDTO paseengerQueryDTO){
-        paseengerQueryDTO.setMemberId(LoginMemberContext.getId());
+
         PageVO<${Domain}QueryVO> pageVO = ${domain}Service.queryList(paseengerQueryDTO);
         return new CommonResp<>(pageVO);
     }
