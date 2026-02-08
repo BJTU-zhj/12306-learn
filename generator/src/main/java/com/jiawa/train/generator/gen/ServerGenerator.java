@@ -15,6 +15,8 @@ import java.util.*;
 
 public class ServerGenerator {
 
+    static boolean readOnly=false;
+    static String vuePath="web/src/views/main/";
     static String serverPath = "[module-all]\\src\\main\\java\\com\\jiawa\\train\\[module]\\";
     static String pomPath = "generator\\pom.xml";
     static {
@@ -72,14 +74,27 @@ public class ServerGenerator {
         map.put("fieldList",fieldList);
         map.put("typeSet",javaTypes);
         map.put("module", moduleName);
+        map.put("readOnly",readOnly);
         System.out.printf("组装参数:"+ map.toString());
 
 //        gen(Domain, map,"service","service");
 //        gen(Domain, map,"controller","controller");
 //        //target是模板名字
 //        gen(Domain, map,"DTO","saveDTO");
-        gen(Domain, map,"DTO","queryDTO");
-        gen(Domain, map,"VO","queryVO");
+//        gen(Domain, map,"DTO","queryDTO");
+//        gen(Domain, map,"VO","queryVO");
+
+        //生成vue模板，与上边不一样
+        genVue(do_main, map);
+
+    }
+
+    public static void genVue(String do_main,Map<String,Object> map) throws Exception {
+        FreemarkerUtil.initConfig("vue.ftl");
+        new File(vuePath).mkdirs();
+        String fileName=vuePath+do_main+"View.vue";
+        System.out.println("生成vue模板:"+fileName);
+        FreemarkerUtil.generator(fileName, map);
     }
 
     private static void gen(String Domain, Map<String, Object> map,String packageName,String target) throws IOException, TemplateException {
