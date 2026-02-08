@@ -11,9 +11,7 @@ import org.dom4j.io.SAXReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServerGenerator {
 
@@ -63,22 +61,29 @@ public class ServerGenerator {
         //表中文名
         String tableNameCn=DbUtil.getTableComment(tableName.getText());
         List<Field> fieldList=DbUtil.getColumnByTableName(tableName.getText());
+        Set<String> javaTypes = getJavaTypes(fieldList);
 
         //组装参数
         Map<String,Object> map=new HashMap<>();
         map.put("Domain",Domain);
         map.put("domain",domain);
         map.put("do_main",do_main);
+        map.put("tableNameCn",tableNameCn);
+        map.put("fieldList",fieldList);
+        map.put("typeSet",javaTypes);
+        map.put("module", moduleName);
         System.out.printf("组装参数:"+ map.toString());
 
-        gen(Domain, map,"service");
-        gen(Domain, map,"controller");
+//        gen(Domain, map,"service");
+//        gen(Domain, map,"controller");
+        //target是模板名字
+        gen(Domain, map,"DTO","saveDTO");
     }
 
-    private static void gen(String Domain, Map<String, Object> map,String  target) throws IOException, TemplateException {
+    private static void gen(String Domain, Map<String, Object> map,String packageName,String target) throws IOException, TemplateException {
         FreemarkerUtil.initConfig(target+".ftl");
         String Target=target.substring(0,1).toUpperCase()+target.substring(1);
-        String toPath=serverPath + target+"\\";
+        String toPath=serverPath + packageName+"\\";
         new File(toPath).mkdirs();
         FreemarkerUtil.generator(toPath+Domain +Target+".java", map);
     }
@@ -93,6 +98,18 @@ public class ServerGenerator {
         Node node = document.selectSingleNode("//pom:configurationFile");
         System.out.println(node.getText());
         return node.getText();
+    }
+
+    /**
+     * 获取所有的Java类型，使用Set去重
+     */
+    private static Set<String> getJavaTypes(List<Field> fieldList) {
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < fieldList.size(); i++) {
+            Field field = fieldList.get(i);
+            set.add(field.getJavaType());
+        }
+        return set;
     }
 
 
