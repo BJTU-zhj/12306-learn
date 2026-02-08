@@ -44,6 +44,18 @@
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.jiawa</groupId>
+            <artifactId>train-member</artifactId>
+
+        </dependency>
+        <dependency>
+            <groupId>com.jiawa</groupId>
+            <artifactId>train-member</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
 
