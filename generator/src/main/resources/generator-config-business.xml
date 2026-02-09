@@ -41,7 +41,8 @@
                              targetPackage="com.jiawa.train.business.mapper"
                              type="XMLMAPPER"/>
 
-        <table tableName="train" domainObjectName="Train"/>
+<!--        <table tableName="train" domainObjectName="Train"/>-->
 <!--        <table tableName="station" domainObjectName="Station"/>-->
+        <table tableName="train_station" domainObjectName="TrainStation"/>
     </context>
 </generatorConfiguration>
