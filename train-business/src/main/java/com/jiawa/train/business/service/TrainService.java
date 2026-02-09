@@ -5,15 +5,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
-import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.business.DTO.TrainQueryDTO;
 import com.jiawa.train.business.DTO.TrainSaveDTO;
 import com.jiawa.train.business.VO.TrainQueryVO;
 import com.jiawa.train.business.domain.Train;
 import com.jiawa.train.business.domain.TrainExample;
 import com.jiawa.train.business.mapper.TrainMapper;
+import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +66,15 @@ public class TrainService {
     //删除,根据id
     public void delete(Long id){
         trainMapper.deleteByPrimaryKey(id);
+    }
+
+    //查询所有 车次
+    public List<TrainQueryVO> queryALL(){
+        TrainExample  trainExample=new TrainExample();
+        trainExample.setOrderByClause("code asc");
+        TrainExample.Criteria criteria=trainExample.createCriteria();
+        List<Train> trainList=trainMapper.selectByExample(trainExample);
+        return BeanUtil.copyToList(trainList,TrainQueryVO.class);
     }
 
 }

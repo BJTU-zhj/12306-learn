@@ -10,9 +10,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("admin/train")
-public class TrainController {
+public class TrainAdminController {
 
     @Autowired
     private TrainService trainService;
@@ -34,6 +36,12 @@ public class TrainController {
     public CommonResp<Object> delete(@PathVariable Long id){
         trainService.delete(id);
         return new CommonResp<>();
+    }
+
+    //查询当前所有车次
+    @GetMapping("/query-all")
+    public CommonResp<List<TrainQueryVO>> queryList(){
+        return new CommonResp<>(trainService.queryALL());
     }
 
 }

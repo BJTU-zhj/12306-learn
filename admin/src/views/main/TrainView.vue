@@ -95,7 +95,7 @@ export default defineComponent({
     const pagination = ref({
       total: 0,
       current: 1,
-      pageSize: 10,
+      pageSize: 2,
     });
     let loading = ref(false);
     const columns = [
@@ -239,11 +239,24 @@ export default defineComponent({
       });
     };
 
+    //获取所有车次
+    const queryTrainCode=()=>{
+      axios.get("/business/admin/train/query-all").then((response)=>{
+        let  data=response.data;
+        if(data.success){
+          console.log("查询所有车次",data.content);
+        }else {
+          notification.error({description:data.message});
+        }
+      });
+    };
+
     onMounted(() => {
       handleQuery({
         page: 1,
         size: pagination.value.pageSize
       });
+      queryTrainCode();
     });
 
     return {
