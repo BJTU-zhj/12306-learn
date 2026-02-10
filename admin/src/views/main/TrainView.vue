@@ -20,6 +20,12 @@
             <a style="color: red">删除</a>
           </a-popconfirm>
           <a @click="onEdit(record)">编辑</a>
+          <a-popconfirm
+              title="生成座位将删除已有记录，确认生成座位?"
+              @confirm="genSeat(record)"
+              ok-text="确认" cancel-text="取消">
+            <a>生成座位</a>
+          </a-popconfirm>
         </a-space>
       </template>
       <template v-else-if="column.dataIndex === 'type'">
@@ -147,6 +153,20 @@ export default defineComponent({
       }
     ];
 
+    //自动生成座位
+    const genSeat=(record)=>{
+      loading.value=true;
+      axios.get("/business/admin/train/gen-seat/"+record.code).then((response) => {
+        loading.value=false;
+        let data = response.data;
+        if(data.success){
+          notification.success({description: "生成座位成功！"});
+        }else {
+          notification.error({description: data.message});
+        }
+      });
+    };
+
     //增加对站名的监控自动获取拼音
     watch(()=>train.value.start,()=>{
       if(Tool.isNotEmpty(train.value.start)){
@@ -262,7 +282,8 @@ export default defineComponent({
       onAdd,
       handleOk,
       onEdit,
-      onDelete
+      onDelete,
+      genSeat
     };
   },
 });

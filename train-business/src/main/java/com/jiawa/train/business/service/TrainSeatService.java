@@ -54,7 +54,7 @@ public class TrainSeatService {
     //查询列表
     public PageVO<TrainSeatQueryVO> queryList(TrainSeatQueryDTO trainSeatQueryDTO){
         TrainSeatExample trainSeatExample = new TrainSeatExample();
-        trainSeatExample.setOrderByClause("train_code asc,`carriage_index` asc");
+        trainSeatExample.setOrderByClause("train_code asc,carriage_index asc,carriage_seat_index asc");
         TrainSeatExample.Criteria criteria = trainSeatExample.createCriteria();
         if(ObjectUtil.isNotEmpty(trainSeatQueryDTO.getTrainCode())){
             criteria.andTrainCodeEqualTo(trainSeatQueryDTO.getTrainCode());
