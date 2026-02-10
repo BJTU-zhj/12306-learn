@@ -99,50 +99,50 @@ export default defineComponent({
     });
     let loading = ref(false);
     const columns = [
-    {
-      title: '车次编号',
-      dataIndex: 'code',
-      key: 'code',
-    },
-    {
-      title: '车次类型',
-      dataIndex: 'type',
-      key: 'type',
-    },
-    {
-      title: '始发站',
-      dataIndex: 'start',
-      key: 'start',
-    },
-    {
-      title: '始发站拼音',
-      dataIndex: 'startPinyin',
-      key: 'startPinyin',
-    },
-    {
-      title: '出发时间',
-      dataIndex: 'startTime',
-      key: 'startTime',
-    },
-    {
-      title: '终点站',
-      dataIndex: 'end',
-      key: 'end',
-    },
-    {
-      title: '终点站拼音',
-      dataIndex: 'endPinyin',
-      key: 'endPinyin',
-    },
-    {
-      title: '到站时间',
-      dataIndex: 'endTime',
-      key: 'endTime',
-    },
-    {
-      title: '操作',
-      dataIndex: 'operation'
-    }
+      {
+        title: '车次编号',
+        dataIndex: 'code',
+        key: 'code',
+      },
+      {
+        title: '车次类型',
+        dataIndex: 'type',
+        key: 'type',
+      },
+      {
+        title: '始发站',
+        dataIndex: 'start',
+        key: 'start',
+      },
+      {
+        title: '始发站拼音',
+        dataIndex: 'startPinyin',
+        key: 'startPinyin',
+      },
+      {
+        title: '出发时间',
+        dataIndex: 'startTime',
+        key: 'startTime',
+      },
+      {
+        title: '终点站',
+        dataIndex: 'end',
+        key: 'end',
+      },
+      {
+        title: '终点站拼音',
+        dataIndex: 'endPinyin',
+        key: 'endPinyin',
+      },
+      {
+        title: '到站时间',
+        dataIndex: 'endTime',
+        key: 'endTime',
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation'
+      }
     ];
 
     //增加对站名的监控自动获取拼音
@@ -239,24 +239,12 @@ export default defineComponent({
       });
     };
 
-    //获取所有车次
-    const queryTrainCode=()=>{
-      axios.get("/business/admin/train/query-all").then((response)=>{
-        let  data=response.data;
-        if(data.success){
-          console.log("查询所有车次",data.content);
-        }else {
-          notification.error({description:data.message});
-        }
-      });
-    };
 
     onMounted(() => {
       handleQuery({
         page: 1,
         size: pagination.value.pageSize
       });
-      queryTrainCode();
     });
 
     return {

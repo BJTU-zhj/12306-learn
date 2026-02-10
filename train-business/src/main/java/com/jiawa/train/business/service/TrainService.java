@@ -47,7 +47,7 @@ public class TrainService {
     //查询列表
     public PageVO<TrainQueryVO> queryList(TrainQueryDTO trainQueryDTO){
         TrainExample trainExample = new TrainExample();
-        trainExample.setOrderByClause("id desc");
+        trainExample.setOrderByClause("id asc");
         TrainExample.Criteria criteria = trainExample.createCriteria();
 
         PageHelper.startPage(trainQueryDTO.getPage(),trainQueryDTO.getSize());
