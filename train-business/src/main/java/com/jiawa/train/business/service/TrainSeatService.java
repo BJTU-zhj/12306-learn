@@ -47,9 +47,11 @@ public class TrainSeatService {
     //查询列表
     public PageVO<TrainSeatQueryVO> queryList(TrainSeatQueryDTO trainSeatQueryDTO){
         TrainSeatExample trainSeatExample = new TrainSeatExample();
-        trainSeatExample.setOrderByClause("id asc");
+        trainSeatExample.setOrderByClause("train_code asc,`carriage_index` asc");
         TrainSeatExample.Criteria criteria = trainSeatExample.createCriteria();
-
+        if(ObjectUtil.isNotEmpty(trainSeatQueryDTO.getTrainCode())){
+            criteria.andTrainCodeEqualTo(trainSeatQueryDTO.getTrainCode());
+        }
         PageHelper.startPage(trainSeatQueryDTO.getPage(),trainSeatQueryDTO.getSize());
         List<TrainSeat> trainSeatList =trainSeatMapper.selectByExample(trainSeatExample);
         ;

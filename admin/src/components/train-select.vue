@@ -6,7 +6,7 @@
       :filter-option="filterTrainCodeOption"
       placeholder="请选择车次"
       @change="onChange"
-  >
+      :style="'width:'+_width">
     <a-select-option
         v-for="item in trains"
         :key="item.code"
@@ -25,11 +25,15 @@ import { notification } from "ant-design-vue";
 
 export default defineComponent({
   name: "TrainSelectView",
-  props: ["value"], // 接收父组件传入的值
+  props: ["value","width"], // 接收父组件传入的值
   emits: ["update:value", "change"], // 定义向外抛出的事件
   setup(props, { emit }) {
     const trainCode = ref();
     const trains = ref([]);
+    const _width=ref(props.width);
+    if(Tool.isEmpty(props.width)){
+      _width.value="100%";
+    }
 
     // 监听父组件传入的值变化，同步给内部的 trainCode
     watch(() => props.value, () => {
@@ -77,7 +81,8 @@ export default defineComponent({
       trainCode,
       trains,
       filterTrainCodeOption,
-      onChange
+      onChange,
+      _width
     };
   },
 });

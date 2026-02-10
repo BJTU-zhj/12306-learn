@@ -1,7 +1,8 @@
 <template>
   <p>
     <a-space>
-      <a-button type="primary" @click="handleQuery()">刷新</a-button>
+      <train-select-view v-model:value="selectParam.trainCode" width="200px"/>
+      <a-button type="primary" @click="handleQuery()">查找</a-button>
       <a-button type="primary" @click="onAdd">新增</a-button>
     </a-space>
   </p>
@@ -72,6 +73,9 @@ export default defineComponent({
   setup() {
     const SEAT_TYPE_ARRAY = window.SEAT_TYPE_ARRAY;
     const visible = ref(false);
+    const selectParam = ref({
+      trainCode: null
+    });
     let trainCarriage = ref({
       id: undefined,
       trainCode: undefined,
@@ -180,7 +184,8 @@ export default defineComponent({
       axios.get("/business/admin/train-carriage/query-list", {
         params: {
           page: param.page,
-          size: param.size
+          size: param.size,
+          trainCode: selectParam.value.trainCode
         }
       }).then((response) => {
         loading.value = false;
@@ -224,7 +229,8 @@ export default defineComponent({
       onAdd,
       handleOk,
       onEdit,
-      onDelete
+      onDelete,
+      selectParam
     };
   },
 });

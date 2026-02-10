@@ -47,9 +47,11 @@ public class TrainStationService {
     //查询列表
     public PageVO<TrainStationQueryVO> queryList(TrainStationQueryDTO trainStationQueryDTO){
         TrainStationExample trainStationExample = new TrainStationExample();
-        trainStationExample.setOrderByClause("id asc");
+        trainStationExample.setOrderByClause("train_code asc,`index` asc");
         TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
-
+        if(ObjectUtil.isNotEmpty(trainStationQueryDTO.getTrainCode())){
+            criteria.andTrainCodeEqualTo(trainStationQueryDTO.getTrainCode());
+        }
         PageHelper.startPage(trainStationQueryDTO.getPage(),trainStationQueryDTO.getSize());
         List<TrainStation> trainStationList =trainStationMapper.selectByExample(trainStationExample);
         ;

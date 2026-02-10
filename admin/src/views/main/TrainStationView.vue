@@ -1,7 +1,8 @@
 <template>
   <p>
     <a-space>
-      <a-button type="primary" @click="handleQuery()">刷新</a-button>
+      <train-select-view v-model:value="selectParam.trainCode" width="200px"/>
+      <a-button type="primary" @click="handleQuery()">查找</a-button>
       <a-button type="primary" @click="onAdd">新增</a-button>
     </a-space>
   </p>
@@ -28,7 +29,7 @@
            ok-text="确认" cancel-text="取消">
     <a-form :model="trainStation" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
       <a-form-item label="车次编号">
-      <train-select-view v-model:value="trainStation.trainCode" />
+      <train-select-view v-model:value="trainStation.trainCode"  />
       </a-form-item>
       <a-form-item label="站序">
         <a-input v-model:value="trainStation.index" />
@@ -69,6 +70,9 @@ export default defineComponent({
   setup() {
     const visible = ref(false);
     const trains = ref([]);
+    const selectParam=ref({
+      trainCode: null
+    });
     let trainStation = ref({
       id: undefined,
       trainCode: undefined,
@@ -191,14 +195,15 @@ export default defineComponent({
       if (!param) {
         param = {
           page: 1,
-          size: pagination.value.pageSize
+          size: pagination.value.pageSize,
         };
       }
       loading.value = true;
       axios.get("/business/admin/train-station/query-list", {
         params: {
           page: param.page,
-          size: param.size
+          size: param.size,
+          trainCode: selectParam.value.trainCode
         }
       }).then((response) => {
         loading.value = false;
@@ -244,7 +249,8 @@ export default defineComponent({
       handleOk,
       onEdit,
       onDelete,
-      trains
+      trains,
+      selectParam
     };
   },
 });
