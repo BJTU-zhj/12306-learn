@@ -68,4 +68,13 @@ public class StationService {
         stationMapper.deleteByPrimaryKey(id);
     }
 
+    //查询所有的车站
+    public List<StationQueryVO> queryAll(){
+        StationExample stationExample = new StationExample();
+        stationExample.setOrderByClause("name_pinyin asc");
+        stationExample.createCriteria();
+        List<Station> stationList = stationMapper.selectByExample(stationExample);
+        return BeanUtil.copyToList(stationList,StationQueryVO.class);
+    }
+
 }
