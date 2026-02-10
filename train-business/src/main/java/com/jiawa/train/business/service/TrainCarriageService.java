@@ -70,4 +70,11 @@ public class TrainCarriageService {
         trainCarriageMapper.deleteByPrimaryKey(id);
     }
 
+    //根据车次查询该车次所有的车厢信息
+    public List<TrainCarriage> selectByTrainCode(String trainCode){
+        TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
+        trainCarriageExample.createCriteria().andTrainCodeEqualTo(trainCode);
+        return trainCarriageMapper.selectByExample(trainCarriageExample);
+    }
+
 }
