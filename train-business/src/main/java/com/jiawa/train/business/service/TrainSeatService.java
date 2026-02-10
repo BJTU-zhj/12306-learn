@@ -5,15 +5,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
-import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.business.DTO.TrainSeatQueryDTO;
 import com.jiawa.train.business.DTO.TrainSeatSaveDTO;
 import com.jiawa.train.business.VO.TrainSeatQueryVO;
 import com.jiawa.train.business.domain.TrainSeat;
 import com.jiawa.train.business.domain.TrainSeatExample;
 import com.jiawa.train.business.mapper.TrainSeatMapper;
+import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class TrainSeatService {
     //查询列表
     public PageVO<TrainSeatQueryVO> queryList(TrainSeatQueryDTO trainSeatQueryDTO){
         TrainSeatExample trainSeatExample = new TrainSeatExample();
-        trainSeatExample.setOrderByClause("id desc");
+        trainSeatExample.setOrderByClause("id asc");
         TrainSeatExample.Criteria criteria = trainSeatExample.createCriteria();
 
         PageHelper.startPage(trainSeatQueryDTO.getPage(),trainSeatQueryDTO.getSize());

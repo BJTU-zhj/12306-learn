@@ -5,15 +5,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
-import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.business.DTO.TrainCarriageQueryDTO;
 import com.jiawa.train.business.DTO.TrainCarriageSaveDTO;
 import com.jiawa.train.business.VO.TrainCarriageQueryVO;
 import com.jiawa.train.business.domain.TrainCarriage;
 import com.jiawa.train.business.domain.TrainCarriageExample;
 import com.jiawa.train.business.mapper.TrainCarriageMapper;
+import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class TrainCarriageService {
     //查询列表
     public PageVO<TrainCarriageQueryVO> queryList(TrainCarriageQueryDTO trainCarriageQueryDTO){
         TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
-        trainCarriageExample.setOrderByClause("id desc");
+        trainCarriageExample.setOrderByClause("id asc");
         TrainCarriageExample.Criteria criteria = trainCarriageExample.createCriteria();
 
         PageHelper.startPage(trainCarriageQueryDTO.getPage(),trainCarriageQueryDTO.getSize());

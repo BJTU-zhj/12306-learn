@@ -5,15 +5,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
-import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.business.DTO.StationQueryDTO;
 import com.jiawa.train.business.DTO.StationSaveDTO;
 import com.jiawa.train.business.VO.StationQueryVO;
 import com.jiawa.train.business.domain.Station;
 import com.jiawa.train.business.domain.StationExample;
 import com.jiawa.train.business.mapper.StationMapper;
+import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class StationService {
     //查询列表
     public PageVO<StationQueryVO> queryList(StationQueryDTO stationQueryDTO){
         StationExample stationExample = new StationExample();
-        stationExample.setOrderByClause("id desc");
+        stationExample.setOrderByClause("id asc");
         StationExample.Criteria criteria = stationExample.createCriteria();
 
         PageHelper.startPage(stationQueryDTO.getPage(),stationQueryDTO.getSize());
