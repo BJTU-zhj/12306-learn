@@ -10,6 +10,7 @@ import com.jiawa.train.business.DTO.TrainCarriageSaveDTO;
 import com.jiawa.train.business.VO.TrainCarriageQueryVO;
 import com.jiawa.train.business.domain.TrainCarriage;
 import com.jiawa.train.business.domain.TrainCarriageExample;
+import com.jiawa.train.business.enums.SeatColEnum;
 import com.jiawa.train.business.mapper.TrainCarriageMapper;
 import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.util.SnowUtil;
@@ -32,6 +33,11 @@ public class TrainCarriageService {
     public void save(TrainCarriageSaveDTO trainCarriageSaveDTO){
         DateTime now=DateTime.now();
         TrainCarriage trainCarriage = BeanUtil.copyProperties(trainCarriageSaveDTO, TrainCarriage.class);
+        //自动计算车厢座位总数还有根据车座类型获取列数
+        List<SeatColEnum> seatColEnums = SeatColEnum.getColsByType(trainCarriage.getSeatType());
+        int seatCount=seatColEnums.size()*trainCarriage.getRowCount();
+        trainCarriage.setSeatCount(seatCount);
+        trainCarriage.setColCount(seatColEnums.size());
         if(ObjectUtil.isEmpty(trainCarriage.getId())) {
             trainCarriage.setId(SnowUtil.getSnowflakeId());
             trainCarriage.setCreateTime(now);

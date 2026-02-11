@@ -6,7 +6,7 @@
       :filter-option="filterTrainStationOption"
       placeholder="请选择车站"
       @change="onChange"
-      :style="'width:'+_width"
+      :style="'width:'+localWidth"
   >
     <a-select-option
         v-for="item in stations"
@@ -31,9 +31,9 @@ export default defineComponent({
   setup(props, { emit }) {
     const trainStation = ref();
     const stations = ref([]);
-    const _width=ref(props.width);
+    const localWidth=ref(props.width);
     if(Tool.isEmpty(props.width)){
-      _width.value="100%";
+      localWidth.value="100%";
     }
 
 
@@ -85,7 +85,7 @@ export default defineComponent({
       stations,
       filterTrainStationOption,
       onChange,
-      _width
+      localWidth
     };
   },
 });

@@ -6,7 +6,7 @@
       :filter-option="filterTrainCodeOption"
       placeholder="请选择车次"
       @change="onChange"
-      :style="'width:'+_width">
+      :style="'width:'+localWidth">
     <a-select-option
         v-for="item in trains"
         :key="item.code"
@@ -30,9 +30,9 @@ export default defineComponent({
   setup(props, { emit }) {
     const trainCode = ref();
     const trains = ref([]);
-    const _width=ref(props.width);
+    const localWidth=ref(props.width);
     if(Tool.isEmpty(props.width)){
-      _width.value="100%";
+      localWidth.value="100%";
     }
 
     // 监听父组件传入的值变化，同步给内部的 trainCode
@@ -82,7 +82,7 @@ export default defineComponent({
       trains,
       filterTrainCodeOption,
       onChange,
-      _width
+      localWidth
     };
   },
 });
