@@ -1,6 +1,7 @@
 package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +13,8 @@ import com.jiawa.train.business.domain.Station;
 import com.jiawa.train.business.domain.StationExample;
 import com.jiawa.train.business.mapper.StationMapper;
 import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.exception.BusinessException;
+import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -28,10 +31,15 @@ public class StationService {
     @Resource
     private StationMapper stationMapper;
 
-    //保存
+    //保存--新增存在性校验
     public void save(StationSaveDTO stationSaveDTO){
         DateTime now=DateTime.now();
         Station station = BeanUtil.copyProperties(stationSaveDTO, Station.class);
+        //存在性校验
+        Station dbStation=queryByUnique(station.getName());
+        if(ObjectUtil.isNotEmpty(dbStation)){
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_STATION_ALREADY_EXIST);
+        }
         if(ObjectUtil.isEmpty(station.getId())) {
             station.setId(SnowUtil.getSnowflakeId());
             station.setCreateTime(now);
@@ -75,6 +83,18 @@ public class StationService {
         stationExample.createCriteria();
         List<Station> stationList = stationMapper.selectByExample(stationExample);
         return BeanUtil.copyToList(stationList,StationQueryVO.class);
+    }
+
+    //根据唯一键name查询记录
+    public Station queryByUnique(String name){
+        StationExample stationExample=new StationExample();
+        stationExample.createCriteria().andNameEqualTo(name);
+        List<Station> stationList=stationMapper.selectByExample(stationExample);
+        if(CollUtil.isNotEmpty(stationList)){
+            return stationList.get(0);
+        }else {
+            return null;
+        }
     }
 
 }

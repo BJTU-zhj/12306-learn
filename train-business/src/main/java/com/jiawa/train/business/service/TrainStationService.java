@@ -1,6 +1,7 @@
 package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +13,8 @@ import com.jiawa.train.business.domain.TrainStation;
 import com.jiawa.train.business.domain.TrainStationExample;
 import com.jiawa.train.business.mapper.TrainStationMapper;
 import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.exception.BusinessException;
+import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -28,10 +31,19 @@ public class TrainStationService {
     @Resource
     private TrainStationMapper trainStationMapper;
 
-    //保存
+    //保存--存在性校验
     public void save(TrainStationSaveDTO trainStationSaveDTO){
         DateTime now=DateTime.now();
         TrainStation trainStation = BeanUtil.copyProperties(trainStationSaveDTO, TrainStation.class);
+        //存在性校验
+        TrainStation trainStationDBIndex = queryByUniqueIndex(trainStation.getTrainCode(), trainStation.getIndex());
+        if(ObjectUtil.isNotEmpty(trainStationDBIndex)){
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_STATION_INDEX_ALREADY_EXIST);
+        }
+        TrainStation trainStationDBName = queryByUniqueName(trainStation.getTrainCode(), trainStation.getName());
+        if(ObjectUtil.isNotEmpty(trainStationDBName)){
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_STATION_NAME_ALREADY_EXIST);
+        }
         if(ObjectUtil.isEmpty(trainStation.getId())) {
             trainStation.setId(SnowUtil.getSnowflakeId());
             trainStation.setCreateTime(now);
@@ -68,6 +80,30 @@ public class TrainStationService {
     //删除,根据id
     public void delete(Long id){
         trainStationMapper.deleteByPrimaryKey(id);
+    }
+
+    //根据唯一键traincode+index查询记录
+    public TrainStation queryByUniqueIndex(String trainCode,int index){
+        TrainStationExample trainStationExample=new TrainStationExample();
+        trainStationExample.createCriteria().andTrainCodeEqualTo(trainCode).andIndexEqualTo(index);
+        List<TrainStation> trainStationList=trainStationMapper.selectByExample(trainStationExample);
+        if(CollUtil.isNotEmpty(trainStationList)){
+            return trainStationList.get(0);
+        }else {
+            return null;
+        }
+    }
+
+    //根据唯一键traincode+name查询记录
+    public TrainStation queryByUniqueName(String trainCode,String name){
+        TrainStationExample trainStationExample=new TrainStationExample();
+        trainStationExample.createCriteria().andTrainCodeEqualTo(trainCode).andNameEqualTo(name);
+        List<TrainStation> trainStationList=trainStationMapper.selectByExample(trainStationExample);
+        if(CollUtil.isNotEmpty(trainStationList)){
+            return trainStationList.get(0);
+        }else {
+            return null;
+        }
     }
 
 

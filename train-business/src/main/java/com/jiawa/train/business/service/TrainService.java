@@ -1,6 +1,7 @@
 package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +13,8 @@ import com.jiawa.train.business.domain.Train;
 import com.jiawa.train.business.domain.TrainExample;
 import com.jiawa.train.business.mapper.TrainMapper;
 import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.exception.BusinessException;
+import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -28,10 +31,15 @@ public class TrainService {
     @Resource
     private TrainMapper trainMapper;
 
-    //保存
+    //保存--新增存在性校验
     public void save(TrainSaveDTO trainSaveDTO){
         DateTime now=DateTime.now();
         Train train = BeanUtil.copyProperties(trainSaveDTO, Train.class);
+        //存在性校验
+        Train dbTrain=queryByUnique(train.getCode());
+        if(ObjectUtil.isNotEmpty(dbTrain)){
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_ALREADY_EXIST);
+        }
         if(ObjectUtil.isEmpty(train.getId())) {
             train.setId(SnowUtil.getSnowflakeId());
             train.setCreateTime(now);
@@ -75,6 +83,18 @@ public class TrainService {
         TrainExample.Criteria criteria=trainExample.createCriteria();
         List<Train> trainList=trainMapper.selectByExample(trainExample);
         return BeanUtil.copyToList(trainList,TrainQueryVO.class);
+    }
+
+    //根据唯一键traincode查询记录
+    public Train queryByUnique(String code){
+        TrainExample trainExample=new TrainExample();
+        trainExample.createCriteria().andCodeEqualTo(code);
+        List<Train> trainList=trainMapper.selectByExample(trainExample);
+        if(CollUtil.isNotEmpty(trainList)){
+            return trainList.get(0);
+        }else {
+            return null;
+        }
     }
 
 }

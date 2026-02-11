@@ -47,7 +47,7 @@
         <a-time-picker v-model:value="trainStation.outTime" valueFormat="HH:mm:ss" placeholder="请选择时间" />
       </a-form-item>
       <a-form-item label="停站时长">
-        <a-time-picker v-model:value="trainStation.stopTime" valueFormat="HH:mm:ss" placeholder="请选择时间" />
+        <a-time-picker v-model:value="trainStation.stopTime" valueFormat="HH:mm:ss" placeholder="请选择时间" disabled/>
       </a-form-item>
       <a-form-item label="里程（公里）">
         <a-input v-model:value="trainStation.km" />
@@ -63,6 +63,7 @@ import axios from "axios";
 import {pinyin} from "pinyin-pro";
 import TrainSelectView from "@/components/train-select.vue";
 import TrainStationSelectView from "@/components/station-select.vue";
+import dayjs from 'dayjs'
 
 export default defineComponent({
   name: "train-station-view",
@@ -140,6 +141,36 @@ export default defineComponent({
       dataIndex: 'operation'
     }
     ];
+
+    watch(
+        () => [trainStation.value.inTime, trainStation.value.outTime],
+        ([newIn, newOut]) => {
+          if (!newIn || !newOut) {
+            trainStation.value.stopTime = "00:00:00";
+            return;
+          }
+
+          const start = dayjs(`2000-01-01 ${newIn}`, "YYYY-MM-DD HH:mm:ss");
+          const end = dayjs(`2000-01-01 ${newOut}`, "YYYY-MM-DD HH:mm:ss");
+
+          // 获取毫秒差
+          let diffMs = end.diff(start);
+
+          // 如果出站时间小于进站时间（比如跨天），处理为 0 或其他逻辑
+          if (diffMs < 0) {
+            trainStation.value.stopTime = "00:00:00";
+            return;
+          }
+
+          // 转换：将毫秒转换为具体的 时:分:秒
+          const hours = Math.floor(diffMs / (1000 * 60 * 60)).toString().padStart(2, '0');
+          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+          const seconds = Math.floor((diffMs % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+          trainStation.value.stopTime = `${hours}:${minutes}:${seconds}`;
+        },
+        { immediate: true }
+    );
 
     //增加对站名的监控自动获取拼音
     watch(()=>trainStation.value.name,()=>{
