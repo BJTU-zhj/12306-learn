@@ -1,0 +1,53 @@
+POST http://localhost:8000/batch/admin/job/add
+Content-Type: application/json
+
+{
+  "group": "default",
+  "name": "com.jiawa.train.batch.job.TestJob",
+  "cronExpression": "0/5 * * * * ?",
+  "description": "测试任务"
+}
+
+###查询
+GET http://localhost:8000/batch/admin/job/query
+Content-Type: application/json
+
+
+
+###暂停
+POST http://localhost:8000/batch/admin/job/pause
+Content-Type: application/json
+
+{
+  "group": "default",
+  "name": "com.jiawa.train.batch.job.TestJob"
+}
+
+###重启
+POST http://localhost:8000/batch/admin/job/resume
+Content-Type: application/json
+
+{
+  "group": "default",
+  "name": "com.jiawa.train.batch.job.TestJob"
+}
+
+###重置重启
+POST http://localhost:8000/batch/admin/job/rescheduls
+Content-Type: application/json
+
+{
+  "group": "default",
+  "name": "com.jiawa.train.batch.job.TestJob",
+  "cronExpression": "0/10 * * * * ?",
+  "description": "测试任务"
+}
+
+###删除
+POST http://localhost:8000/batch/admin/job/delete
+Content-Type: application/json
+
+{
+  "group": "default",
+  "name": "com.jiawa.train.batch.job.TestJob"
+}
