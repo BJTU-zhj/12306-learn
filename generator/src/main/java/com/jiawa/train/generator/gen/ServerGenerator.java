@@ -15,10 +15,11 @@ import java.util.*;
 
 public class ServerGenerator {
 
-    static boolean readOnly=true;
+    static boolean readOnly=false;
     static String vuePath="admin/src/views/main/";
     static String serverPath = "[module-all]\\src\\main\\java\\com\\jiawa\\train\\[module]\\";
     static String pomPath = "generator\\pom.xml";
+    static String moduleName="";
     static {
         new File(serverPath).mkdirs();
     }
@@ -27,7 +28,7 @@ public class ServerGenerator {
        String generatorPath =getGeneratorPath();
 
        //获取模块名字
-        String moduleName = generatorPath.replace("src/main/resources/generator-config-","");
+        moduleName = generatorPath.replace("src/main/resources/generator-config-","");
         moduleName=moduleName.replace(".xml","");
         System.out.println("模块名字："+moduleName);
         serverPath = serverPath.replace("[module-all]","train-"+moduleName);
@@ -77,12 +78,12 @@ public class ServerGenerator {
         map.put("readOnly",readOnly);
         System.out.printf("组装参数:"+ map.toString());
 
-//        gen(Domain, map,"service","service");
-//        gen(Domain, map,"controller","controller");
-//        //target是模板名字
-//        gen(Domain, map,"DTO","saveDTO");
-//        gen(Domain, map,"DTO","queryDTO");
-//        gen(Domain, map,"VO","queryVO");
+        gen(Domain, map,"service","service");
+        gen(Domain, map,"controller","controller");
+        //target是模板名字
+        gen(Domain, map,"DTO","saveDTO");
+        gen(Domain, map,"DTO","queryDTO");
+        gen(Domain, map,"VO","queryVO");
 
         //生成vue模板，与上边不一样
         genVue(Domain, map);
@@ -91,8 +92,9 @@ public class ServerGenerator {
 
     public static void genVue(String do_main,Map<String,Object> map) throws Exception {
         FreemarkerUtil.initConfig("vue.ftl");
-        new File(vuePath).mkdirs();
-        String fileName=vuePath+do_main+"View.vue";
+        String aimPath=vuePath+moduleName+"/";
+        new File(aimPath).mkdirs();
+        String fileName=aimPath+do_main+"View.vue";
         System.out.println("生成vue模板:"+fileName);
         FreemarkerUtil.generator(fileName, map);
     }
