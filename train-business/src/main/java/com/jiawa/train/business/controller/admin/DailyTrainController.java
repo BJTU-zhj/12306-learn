@@ -1,8 +1,7 @@
-package com.jiawa.train.business.controller;
+package com.jiawa.train.business.controller.admin;
 
 import com.jiawa.train.common.VO.CommonResp;
 import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.business.DTO.DailyTrainQueryDTO;
 import com.jiawa.train.business.DTO.DailyTrainSaveDTO;
 import com.jiawa.train.business.VO.DailyTrainQueryVO;
