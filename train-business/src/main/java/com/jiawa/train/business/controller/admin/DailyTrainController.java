@@ -42,7 +42,7 @@ public class DailyTrainController {
     //给feign调用的
     @GetMapping("gen-daily/{date}")
     public CommonResp<Object> genDailyTrain(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date date){
-        dailyTrainService.genDailyTrain(date);
+        dailyTrainService.genDaily(date);
         return new CommonResp<>();
     }
 

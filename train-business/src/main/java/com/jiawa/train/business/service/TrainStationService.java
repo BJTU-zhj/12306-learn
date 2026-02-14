@@ -106,5 +106,13 @@ public class TrainStationService {
         }
     }
 
+    //feign自动生成每日数据用
+    public List<TrainStation> selectByTrainCode(String trainCode){
+        TrainStationExample trainStationExample=new TrainStationExample();
+        trainStationExample.setOrderByClause("`index` asc");
+        trainStationExample.createCriteria().andTrainCodeEqualTo(trainCode);
+        return trainStationMapper.selectByExample(trainStationExample);
+    }
+
 
 }

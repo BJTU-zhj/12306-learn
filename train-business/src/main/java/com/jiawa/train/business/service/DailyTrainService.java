@@ -3,6 +3,7 @@ package com.jiawa.train.business.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -18,8 +19,8 @@ import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -32,8 +33,11 @@ public class DailyTrainService {
     @Resource
     private DailyTrainMapper dailyTrainMapper;
 
-    @Autowired
+    @Resource
     private TrainService trainService;
+
+    @Resource
+    private DailyTrainStationService dailyTrainStationService;
 
     //保存
     public void save(DailyTrainSaveDTO dailyTrainSaveDTO){
@@ -91,12 +95,13 @@ public class DailyTrainService {
         dailyTrainMapper.deleteByExample(dailyTrainExample);
     }
 
-    //生成date天后的每日车次数据
-    public void genDailyTrain(Date date){
+    //生成date天后的每日车次、车次车站数据
+    @Transactional
+    public void genDaily(Date date){
         //获取所有车次
         List<Train> trainList=trainService.selectAll();
         if(CollUtil.isEmpty(trainList)){
-            LOG.info("{},无每日车次数据", date.toString());
+            LOG.info("{},无每日车次数据", DateUtil.format(date, "yyyy-MM-dd"));
             return;
         }
         for (Train train : trainList){
@@ -110,6 +115,9 @@ public class DailyTrainService {
             dailyTrain.setUpdateTime(now);
             dailyTrain.setDate(date);
             dailyTrainMapper.insert(dailyTrain);
+
+            //生成当前车次的每日车次车站数据
+            dailyTrainStationService.genDaily(date,train.getCode());
         }
     }
 

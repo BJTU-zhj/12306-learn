@@ -16,4 +16,5 @@ public interface BusinessFeign {
 
     @GetMapping("/admin/daily-train/gen-daily/{date}")
     CommonResp<Object> genDailyTrain(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date date );
+
 }

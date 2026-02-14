@@ -84,6 +84,7 @@ public class TrainService {
 
     public List<Train> selectAll() {
         TrainExample  trainExample=new TrainExample();
+        trainExample.setOrderByClause("id asc");
         TrainExample.Criteria criteria=trainExample.createCriteria();
         return trainMapper.selectByExample(trainExample);
     }
