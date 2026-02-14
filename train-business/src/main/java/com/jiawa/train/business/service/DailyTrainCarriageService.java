@@ -1,6 +1,7 @@
 package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -98,6 +99,10 @@ public class DailyTrainCarriageService {
         dailyTrainCarriageMapper.deleteByExample(dailyTrainCarriageExample);
         //获取所有车厢
         List<TrainCarriage> trainCarriageList=trainCarriageService.selectByTrainCode(trainCode);
+        if(CollUtil.isEmpty(trainCarriageList)){
+            LOG.info("车次没有车厢，车次：{}", trainCode);
+            return;
+        }
         //插入所有车厢
         for (TrainCarriage trainCarriage : trainCarriageList){
             DateTime now=DateTime.now();

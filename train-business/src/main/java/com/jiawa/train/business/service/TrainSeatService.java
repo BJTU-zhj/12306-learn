@@ -117,4 +117,13 @@ public class TrainSeatService {
 
     }
 
+    //获取某车次所有座位
+    public List<TrainSeat> selectByTrainCode(String trainCode){
+        TrainSeatExample trainSeatExample = new TrainSeatExample();
+        trainSeatExample.setOrderByClause("carriage_index asc, carriage_seat_index asc");
+        trainSeatExample.createCriteria()
+                .andTrainCodeEqualTo(trainCode);
+        return trainSeatMapper.selectByExample(trainSeatExample);
+    }
+
 }

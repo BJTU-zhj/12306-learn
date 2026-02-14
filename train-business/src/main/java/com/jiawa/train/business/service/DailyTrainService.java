@@ -42,6 +42,9 @@ public class DailyTrainService {
     @Resource
     private DailyTrainCarriageService dailyTrainCarriageService;
 
+    @Resource
+    private DailyTrainSeatService dailyTrainSeatService;
+
     //保存
     public void save(DailyTrainSaveDTO dailyTrainSaveDTO){
         DateTime now=DateTime.now();
@@ -104,7 +107,7 @@ public class DailyTrainService {
         //获取所有车次
         List<Train> trainList=trainService.selectAll();
         if(CollUtil.isEmpty(trainList)){
-            LOG.info("{},无每日车次数据", DateUtil.format(date, "yyyy-MM-dd"));
+            LOG.info("{},这天无每日车次数据", DateUtil.format(date, "yyyy-MM-dd"));
             return;
         }
         for (Train train : trainList){
@@ -124,6 +127,10 @@ public class DailyTrainService {
 
             //生成当前车次的每日车厢数据
             dailyTrainCarriageService.genDaily(date,train.getCode());
+
+            //生成当前车次的每日座位数据
+            dailyTrainSeatService.genDaily(date,train.getCode());
+
         }
     }
 
