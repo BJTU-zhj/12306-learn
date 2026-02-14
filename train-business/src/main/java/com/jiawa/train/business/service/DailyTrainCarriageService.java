@@ -2,6 +2,7 @@ package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -10,6 +11,7 @@ import com.jiawa.train.business.DTO.DailyTrainCarriageSaveDTO;
 import com.jiawa.train.business.VO.DailyTrainCarriageQueryVO;
 import com.jiawa.train.business.domain.DailyTrainCarriage;
 import com.jiawa.train.business.domain.DailyTrainCarriageExample;
+import com.jiawa.train.business.domain.TrainCarriage;
 import com.jiawa.train.business.enums.SeatColEnum;
 import com.jiawa.train.business.mapper.DailyTrainCarriageMapper;
 import com.jiawa.train.common.VO.PageVO;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,6 +31,9 @@ public class DailyTrainCarriageService {
 
     @Resource
     private DailyTrainCarriageMapper dailyTrainCarriageMapper;
+
+    @Resource
+    private TrainCarriageService trainCarriageService;
 
     //保存
     public void save(DailyTrainCarriageSaveDTO dailyTrainCarriageSaveDTO){
@@ -79,6 +85,30 @@ public class DailyTrainCarriageService {
     //删除,根据id
     public void delete(Long id){
         dailyTrainCarriageMapper.deleteByPrimaryKey(id);
+    }
+
+    //生成date天后trainCode每日车厢信息
+    public void genDaily(Date date, String trainCode){
+        LOG.info("开始生成{}的{}车次车厢每日数据", DateUtil.format(date, "yyyy-MM-dd"),trainCode);
+        //删除该车次的所有车厢--某天的
+        DailyTrainCarriageExample dailyTrainCarriageExample = new DailyTrainCarriageExample();
+        dailyTrainCarriageExample.createCriteria()
+                .andDateEqualTo(date)
+                .andTrainCodeEqualTo(trainCode);
+        dailyTrainCarriageMapper.deleteByExample(dailyTrainCarriageExample);
+        //获取所有车厢
+        List<TrainCarriage> trainCarriageList=trainCarriageService.selectByTrainCode(trainCode);
+        //插入所有车厢
+        for (TrainCarriage trainCarriage : trainCarriageList){
+            DateTime now=DateTime.now();
+            DailyTrainCarriage dailyTrainCarriage=BeanUtil.copyProperties(trainCarriage,DailyTrainCarriage.class);
+            dailyTrainCarriage.setId(SnowUtil.getSnowflakeId());
+            dailyTrainCarriage.setCreateTime(now);
+            dailyTrainCarriage.setUpdateTime(now);
+            dailyTrainCarriage.setDate(date);
+            dailyTrainCarriageMapper.insert(dailyTrainCarriage);
+        }
+        LOG.info("结束生成{}的{}车次车厢每日数据", DateUtil.format(date, "yyyy-MM-dd"),trainCode);
     }
 
 }

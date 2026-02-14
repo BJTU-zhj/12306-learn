@@ -39,6 +39,9 @@ public class DailyTrainService {
     @Resource
     private DailyTrainStationService dailyTrainStationService;
 
+    @Resource
+    private DailyTrainCarriageService dailyTrainCarriageService;
+
     //保存
     public void save(DailyTrainSaveDTO dailyTrainSaveDTO){
         DateTime now=DateTime.now();
@@ -118,6 +121,9 @@ public class DailyTrainService {
 
             //生成当前车次的每日车次车站数据
             dailyTrainStationService.genDaily(date,train.getCode());
+
+            //生成当前车次的每日车厢数据
+            dailyTrainCarriageService.genDaily(date,train.getCode());
         }
     }
 

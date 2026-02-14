@@ -87,10 +87,10 @@ public class TrainCarriageService {
     //根据车次查询该车次所有的车厢信息
     public List<TrainCarriage> selectByTrainCode(String trainCode){
         TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
+        trainCarriageExample.setOrderByClause("`index` asc");
         trainCarriageExample.createCriteria().andTrainCodeEqualTo(trainCode);
         return trainCarriageMapper.selectByExample(trainCarriageExample);
     }
-
 
     //根据唯一键traincode+index查询记录
     public TrainCarriage queryByUniqueTrainIndex(String trainCode,int index){
@@ -103,4 +103,5 @@ public class TrainCarriageService {
             return null;
         }
     }
+
 }
