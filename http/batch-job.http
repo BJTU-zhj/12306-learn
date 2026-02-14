@@ -55,3 +55,12 @@ Content-Type: application/json
 ###hello测试
 GET http://localhost:8004/batch/hello
 Content-Type: application/json
+
+###手动执行一次
+GET http://localhost:8000/batch/admin/job/run
+Content-Type: application/json
+
+{
+  "group": "default",
+  "name": "com.jiawa.train.batch.job.DailyTrainJob"
+}

@@ -78,11 +78,14 @@ public class TrainService {
 
     //查询所有 车次
     public List<TrainQueryVO> queryALL(){
-        TrainExample  trainExample=new TrainExample();
-        trainExample.setOrderByClause("code asc");
-        TrainExample.Criteria criteria=trainExample.createCriteria();
-        List<Train> trainList=trainMapper.selectByExample(trainExample);
+        List<Train> trainList = selectAll();
         return BeanUtil.copyToList(trainList,TrainQueryVO.class);
+    }
+
+    public List<Train> selectAll() {
+        TrainExample  trainExample=new TrainExample();
+        TrainExample.Criteria criteria=trainExample.createCriteria();
+        return trainMapper.selectByExample(trainExample);
     }
 
     //根据唯一键traincode查询记录
