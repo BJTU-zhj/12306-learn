@@ -37,7 +37,7 @@ public class StationService {
         Station station = BeanUtil.copyProperties(stationSaveDTO, Station.class);
         //存在性校验
         Station dbStation=queryByUnique(station.getName());
-        if(ObjectUtil.isNotEmpty(dbStation)){
+        if(ObjectUtil.isNotEmpty(dbStation)&&ObjectUtil.isEmpty(station.getId())){
             throw new BusinessException(BusinessExceptionEnum.BUSINESS_STATION_ALREADY_EXIST);
         }
         if(ObjectUtil.isEmpty(station.getId())) {

@@ -43,7 +43,7 @@ public class TrainCarriageService {
         trainCarriage.setColCount(seatColEnums.size());
         //存在性校验
         TrainCarriage trainCarriageDB=queryByUniqueTrainIndex(trainCarriage.getTrainCode(), trainCarriage.getIndex());
-        if(ObjectUtil.isNotEmpty(trainCarriageDB)){
+        if(ObjectUtil.isNotEmpty(trainCarriageDB)&&ObjectUtil.isEmpty(trainCarriage.getId())){
             throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_CARRIAGE_ALREADY_EXIST);
         }
         if(ObjectUtil.isEmpty(trainCarriage.getId())) {

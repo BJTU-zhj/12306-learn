@@ -37,7 +37,7 @@ public class TrainService {
         Train train = BeanUtil.copyProperties(trainSaveDTO, Train.class);
         //存在性校验
         Train dbTrain=queryByUnique(train.getCode());
-        if(ObjectUtil.isNotEmpty(dbTrain)){
+        if(ObjectUtil.isNotEmpty(dbTrain)&&ObjectUtil.isEmpty(train.getId())){
             throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_ALREADY_EXIST);
         }
         if(ObjectUtil.isEmpty(train.getId())) {

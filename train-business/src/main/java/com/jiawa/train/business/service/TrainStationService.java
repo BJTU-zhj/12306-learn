@@ -37,11 +37,11 @@ public class TrainStationService {
         TrainStation trainStation = BeanUtil.copyProperties(trainStationSaveDTO, TrainStation.class);
         //存在性校验
         TrainStation trainStationDBIndex = queryByUniqueIndex(trainStation.getTrainCode(), trainStation.getIndex());
-        if(ObjectUtil.isNotEmpty(trainStationDBIndex)){
+        if(ObjectUtil.isNotEmpty(trainStationDBIndex)&&ObjectUtil.isEmpty(trainStation.getId())){
             throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_STATION_INDEX_ALREADY_EXIST);
         }
         TrainStation trainStationDBName = queryByUniqueName(trainStation.getTrainCode(), trainStation.getName());
-        if(ObjectUtil.isNotEmpty(trainStationDBName)){
+        if(ObjectUtil.isNotEmpty(trainStationDBName)&&ObjectUtil.isEmpty(trainStation.getId())){
             throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_STATION_NAME_ALREADY_EXIST);
         }
         if(ObjectUtil.isEmpty(trainStation.getId())) {
