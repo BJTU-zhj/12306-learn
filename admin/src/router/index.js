@@ -60,6 +60,10 @@ const routes = [
           {
             path: 'daily-train-seat',
             component: ()=>import('../views/main/business/DailyTrainSeatView.vue')
+          },
+          {
+            path: 'daily-train-ticket',
+            component:()=>import('../views/main/business/DailyTrainTicketView.vue')
           }]
       },
         {
