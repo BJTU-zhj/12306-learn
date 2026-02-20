@@ -293,7 +293,7 @@ export default defineComponent({
     //   dataIndex: 'operation'
     // },
     {
-      title: '到站出站时间',
+      title: '出站到站时间',
       dataIndex: 'time'
     },
     {

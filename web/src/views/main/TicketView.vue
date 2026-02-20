@@ -2,7 +2,6 @@
   <p>
     <a-space>
       <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期" />
-      <train-select-view v-model:value="params.trainCode" />
       <train-station-select-view v-model:value="params.start" placeholder="请选择出发站" />
       <train-station-select-view v-model:value="params.end" placeholder="请选择终点站" />
       <a-button type="primary" @click="handleQuery()">查找</a-button>
@@ -147,13 +146,12 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import {notification} from "ant-design-vue";
 import axios from "axios";
-import TrainSelectView from "@/components/train-select.vue";
 import TrainStationSelectView from "@/components/station-select.vue";
 import dayjs from "dayjs";
 
 export default defineComponent({
   name: "ticket-view",
-  components: {TrainStationSelectView, TrainSelectView},
+  components: {TrainStationSelectView},
   setup() {
     const visible = ref(false);
     const params = ref({
@@ -200,100 +198,11 @@ export default defineComponent({
       key: 'date',
     },
     {
-      title: '车次编号',
-      dataIndex: 'trainCode',
-      key: 'trainCode',
-    },
-    {
       title: '车站',
       dataIndex: 'station',
     },
-    // {
-    //   title: '出发站',
-    //   dataIndex: 'start',
-    //   key: 'start',
-    // },
-    // {
-    //   title: '出发站拼音',
-    //   dataIndex: 'startPinyin',
-    //   key: 'startPinyin',
-    // },
-    // {
-    //   title: '出发时间',
-    //   dataIndex: 'startTime',
-    //   key: 'startTime',
-    // },
-    // {
-    //   title: '出发站序',
-    //   dataIndex: 'startIndex',
-    //   key: 'startIndex',
-    // },
-    // {
-    //   title: '到达站',
-    //   dataIndex: 'end',
-    //   key: 'end',
-    // },
-    // {
-    //   title: '到达站拼音',
-    //   dataIndex: 'endPinyin',
-    //   key: 'endPinyin',
-    // },
-    // {
-    //   title: '到站时间',
-    //   dataIndex: 'endTime',
-    //   key: 'endTime',
-    // },
-    // {
-    //   title: '到站站序',
-    //   dataIndex: 'endIndex',
-    //   key: 'endIndex',
-    // },
-    // {
-    //   title: '一等座余票',
-    //   dataIndex: 'ydz',
-    //   key: 'ydz',
-    // },
-    // {
-    //   title: '一等座票价',
-    //   dataIndex: 'ydzPrice',
-    //   key: 'ydzPrice',
-    // },
-    // {
-    //   title: '二等座余票',
-    //   dataIndex: 'edz',
-    //   key: 'edz',
-    // },
-    // {
-    //   title: '二等座票价',
-    //   dataIndex: 'edzPrice',
-    //   key: 'edzPrice',
-    // },
-    // {
-    //   title: '软卧余票',
-    //   dataIndex: 'rw',
-    //   key: 'rw',
-    // },
-    // {
-    //   title: '软卧票价',
-    //   dataIndex: 'rwPrice',
-    //   key: 'rwPrice',
-    // },
-    // {
-    //   title: '硬卧余票',
-    //   dataIndex: 'yw',
-    //   key: 'yw',
-    // },
-    // {
-    //   title: '硬卧票价',
-    //   dataIndex: 'ywPrice',
-    //   key: 'ywPrice',
-    // },
-    // {
-    //   title: '操作',
-    //   dataIndex: 'operation'
-    // },
     {
-      title: '到站出站时间',
+      title: '出站到站时间',
       dataIndex: 'time'
     },
     {
@@ -366,6 +275,18 @@ export default defineComponent({
     };
 
     const handleQuery = (param) => {
+      if(Tool.isEmpty(params.value.date)){
+        notification.error({description: "请输入查询日期"});
+        return;
+      }
+      if(Tool.isEmpty(params.value.start)){
+        notification.error({description: "请输入出发站"});
+        return;
+      }
+      if(Tool.isEmpty(params.value.end)){
+        notification.error({description: "请输入终点站"});
+        return;
+      }
       if (!param) {
         param = {
           page: 1,
@@ -405,10 +326,10 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      handleQuery({
-        page: 1,
-        size: pagination.value.pageSize
-      });
+      // handleQuery({
+      //   page: 1,
+      //   size: pagination.value.pageSize
+      // });
     });
 
     return {
