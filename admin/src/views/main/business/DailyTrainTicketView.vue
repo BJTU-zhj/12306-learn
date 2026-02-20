@@ -1,7 +1,11 @@
 <template>
   <p>
     <a-space>
-      <a-button type="primary" @click="handleQuery()">刷新</a-button>
+      <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期" />
+      <train-select-view v-model:value="params.trainCode" />
+      <train-station-select-view v-model:value="params.start" />
+      <train-station-select-view v-model:value="params.end" />
+      <a-button type="primary" @click="handleQuery()">查找</a-button>
       <a-button type="primary" @click="onAdd">新增</a-button>
     </a-space>
   </p>
@@ -12,16 +16,70 @@
            :loading="loading">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
-        <a-space>
-          <a-popconfirm
-              title="删除后不可恢复，确认删除?"
-              @confirm="onDelete(record)"
-              ok-text="确认" cancel-text="取消">
-            <a style="color: red">删除</a>
-          </a-popconfirm>
-          <a @click="onEdit(record)">编辑</a>
-        </a-space>
       </template>
+      <template v-else-if="column.dataIndex==='station'">
+        {{record.start}}<br>
+        {{record.end}}
+      </template>
+      <template v-else-if="column.dataIndex==='time'">
+        {{record.startTime}}<br>
+        {{record.endTime}}
+      </template>
+      <template v-else-if="column.dataIndex==='duration'">
+        {{calDuration(record.startTime,record.endTime)}}<br>
+          <div v-if="record.startTime.replaceAll(':','') >= record.endTime.replaceAll(':','')">
+            次日到达
+          </div>
+          <div v-else>
+            当日到达
+          </div>
+      </template>
+      <template v-else-if="column.dataIndex==='ydz'">
+        <div v-if="record.ydz > 0">
+          {{record.ydz}}<br/>
+          {{record.ydzPrice}}￥
+        </div>
+        <div v-else>
+         --
+        </div>
+      </template>
+      <template v-else-if="column.dataIndex==='edz'">
+        <div v-if="record.edz > 0">
+          {{record.edz}}<br/>
+          {{record.edzPrice}}￥
+        </div>
+        <div v-else>
+          --
+        </div>
+      </template>
+      <template v-else-if="column.dataIndex==='rw'">
+        <div v-if="record.rw > 0">
+          {{record.rw}}<br/>
+          {{record.rwPrice}}￥
+        </div>
+        <div v-else>
+          --
+        </div>
+      </template>
+      <template v-else-if="column.dataIndex==='yw'">
+        <div v-if="record.yw > 0">
+          {{record.yw}}<br/>
+          {{record.ywPrice}}￥
+        </div>
+        <div v-else>
+          --
+        </div>
+      </template>
+<!--        <a-space>-->
+<!--          <a-popconfirm-->
+<!--              title="删除后不可恢复，确认删除?"-->
+<!--              @confirm="onDelete(record)"-->
+<!--              ok-text="确认" cancel-text="取消">-->
+<!--            <a style="color: red">删除</a>-->
+<!--          </a-popconfirm>-->
+<!--          <a @click="onEdit(record)">编辑</a>-->
+<!--        </a-space>-->
+
     </template>
   </a-table>
   <a-modal v-model:visible="visible" title="余票信息" @ok="handleOk"
@@ -89,11 +147,21 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import {notification} from "ant-design-vue";
 import axios from "axios";
+import TrainSelectView from "@/components/train-select.vue";
+import TrainStationSelectView from "@/components/station-select.vue";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "daily-train-ticket-view",
+  components: {TrainStationSelectView, TrainSelectView},
   setup() {
     const visible = ref(false);
+    const params = ref({
+      date: null,
+      trainCode: null,
+      start: null,
+      end: null,
+    });
     let dailyTrainTicket = ref({
       id: undefined,
       date: undefined,
@@ -137,88 +205,116 @@ export default defineComponent({
       key: 'trainCode',
     },
     {
-      title: '出发站',
-      dataIndex: 'start',
-      key: 'start',
+      title: '车站',
+      dataIndex: 'station',
+    },
+    // {
+    //   title: '出发站',
+    //   dataIndex: 'start',
+    //   key: 'start',
+    // },
+    // {
+    //   title: '出发站拼音',
+    //   dataIndex: 'startPinyin',
+    //   key: 'startPinyin',
+    // },
+    // {
+    //   title: '出发时间',
+    //   dataIndex: 'startTime',
+    //   key: 'startTime',
+    // },
+    // {
+    //   title: '出发站序',
+    //   dataIndex: 'startIndex',
+    //   key: 'startIndex',
+    // },
+    // {
+    //   title: '到达站',
+    //   dataIndex: 'end',
+    //   key: 'end',
+    // },
+    // {
+    //   title: '到达站拼音',
+    //   dataIndex: 'endPinyin',
+    //   key: 'endPinyin',
+    // },
+    // {
+    //   title: '到站时间',
+    //   dataIndex: 'endTime',
+    //   key: 'endTime',
+    // },
+    // {
+    //   title: '到站站序',
+    //   dataIndex: 'endIndex',
+    //   key: 'endIndex',
+    // },
+    // {
+    //   title: '一等座余票',
+    //   dataIndex: 'ydz',
+    //   key: 'ydz',
+    // },
+    // {
+    //   title: '一等座票价',
+    //   dataIndex: 'ydzPrice',
+    //   key: 'ydzPrice',
+    // },
+    // {
+    //   title: '二等座余票',
+    //   dataIndex: 'edz',
+    //   key: 'edz',
+    // },
+    // {
+    //   title: '二等座票价',
+    //   dataIndex: 'edzPrice',
+    //   key: 'edzPrice',
+    // },
+    // {
+    //   title: '软卧余票',
+    //   dataIndex: 'rw',
+    //   key: 'rw',
+    // },
+    // {
+    //   title: '软卧票价',
+    //   dataIndex: 'rwPrice',
+    //   key: 'rwPrice',
+    // },
+    // {
+    //   title: '硬卧余票',
+    //   dataIndex: 'yw',
+    //   key: 'yw',
+    // },
+    // {
+    //   title: '硬卧票价',
+    //   dataIndex: 'ywPrice',
+    //   key: 'ywPrice',
+    // },
+    // {
+    //   title: '操作',
+    //   dataIndex: 'operation'
+    // },
+    {
+      title: '到站出站时间',
+      dataIndex: 'time'
     },
     {
-      title: '出发站拼音',
-      dataIndex: 'startPinyin',
-      key: 'startPinyin',
+       title: '历时',
+      dataIndex: 'duration'
     },
     {
-      title: '出发时间',
-      dataIndex: 'startTime',
-      key: 'startTime',
+      title: '一等座',
+      dataIndex: 'ydz'
     },
     {
-      title: '出发站序',
-      dataIndex: 'startIndex',
-      key: 'startIndex',
+      title: '二等座',
+      dataIndex: 'edz'
     },
     {
-      title: '到达站',
-      dataIndex: 'end',
-      key: 'end',
+      title: '软卧',
+      dataIndex: 'rw'
     },
     {
-      title: '到达站拼音',
-      dataIndex: 'endPinyin',
-      key: 'endPinyin',
-    },
-    {
-      title: '到站时间',
-      dataIndex: 'endTime',
-      key: 'endTime',
-    },
-    {
-      title: '到站站序',
-      dataIndex: 'endIndex',
-      key: 'endIndex',
-    },
-    {
-      title: '一等座余票',
-      dataIndex: 'ydz',
-      key: 'ydz',
-    },
-    {
-      title: '一等座票价',
-      dataIndex: 'ydzPrice',
-      key: 'ydzPrice',
-    },
-    {
-      title: '二等座余票',
-      dataIndex: 'edz',
-      key: 'edz',
-    },
-    {
-      title: '二等座票价',
-      dataIndex: 'edzPrice',
-      key: 'edzPrice',
-    },
-    {
-      title: '软卧余票',
-      dataIndex: 'rw',
-      key: 'rw',
-    },
-    {
-      title: '软卧票价',
-      dataIndex: 'rwPrice',
-      key: 'rwPrice',
-    },
-    {
-      title: '硬卧余票',
-      dataIndex: 'yw',
-      key: 'yw',
-    },
-    {
-      title: '硬卧票价',
-      dataIndex: 'ywPrice',
-      key: 'ywPrice',
-    },
-    {
-      title: '操作',
-      dataIndex: 'operation'
+      title: '硬卧',
+      dataIndex: 'yw'
     }
     ];
 
@@ -230,6 +326,12 @@ export default defineComponent({
     const onEdit = (record) => {
       dailyTrainTicket.value = window.Tool.copy(record);
       visible.value = true;
+    };
+
+    //停站时常历时的计算
+    const calDuration = (startTime, endTime) => {
+      let diff=dayjs(endTime, "HH:mm:ss").diff(dayjs(startTime, "HH:mm:ss"),'second');
+      return dayjs('00.00.00','HH:mm:ss').second(diff).format("HH:mm:ss");
     };
 
     const onDelete = (record) => {
@@ -274,7 +376,11 @@ export default defineComponent({
       axios.get("/business/admin/daily-train-ticket/query-list", {
         params: {
           page: param.page,
-          size: param.size
+          size: param.size,
+          date: params.value.date,
+          trainCode: params.value.trainCode,
+          start: params.value.start,
+          end: params.value.end
         }
       }).then((response) => {
         loading.value = false;
@@ -317,7 +423,9 @@ export default defineComponent({
       onAdd,
       handleOk,
       onEdit,
-      onDelete
+      onDelete,
+      params,
+      calDuration
     };
   },
 });

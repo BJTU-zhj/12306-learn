@@ -65,10 +65,21 @@ public class DailyTrainTicketService {
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.setOrderByClause("id desc");
         DailyTrainTicketExample.Criteria criteria = dailyTrainTicketExample.createCriteria();
-
+        //条件查询
+        if(ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getTrainCode())){
+            criteria.andTrainCodeEqualTo(dailyTrainTicketQueryDTO.getTrainCode());
+        };
+        if(ObjectUtil.isNotNull(dailyTrainTicketQueryDTO.getDate())){
+            criteria.andDateEqualTo(dailyTrainTicketQueryDTO.getDate());
+        };
+        if(ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getStart())){
+            criteria.andStartEqualTo(dailyTrainTicketQueryDTO.getStart());
+        };
+        if(ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getEnd())){
+            criteria.andEndEqualTo(dailyTrainTicketQueryDTO.getEnd());
+        }
         PageHelper.startPage(dailyTrainTicketQueryDTO.getPage(),dailyTrainTicketQueryDTO.getSize());
         List<DailyTrainTicket> dailyTrainTicketList =dailyTrainTicketMapper.selectByExample(dailyTrainTicketExample);
-        ;
         //固定用插件获取查询总数
         PageInfo<DailyTrainTicket> pageInfo = new PageInfo<>(dailyTrainTicketList);
 
