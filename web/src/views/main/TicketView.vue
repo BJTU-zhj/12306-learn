@@ -15,6 +15,7 @@
            :loading="loading">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
+        <a-button type="primary" @click="toOrder(record)">预订</a-button>
       </template>
       <template v-else-if="column.dataIndex==='station'">
         {{record.start}}<br>
@@ -148,6 +149,7 @@ import {notification} from "ant-design-vue";
 import axios from "axios";
 import TrainStationSelectView from "@/components/station-select.vue";
 import dayjs from "dayjs";
+import router from "@/router";
 
 export default defineComponent({
   name: "ticket-view",
@@ -224,9 +226,17 @@ export default defineComponent({
     {
       title: '硬卧',
       dataIndex: 'yw'
+    },
+    {
+      title: '操作',
+      dataIndex: 'operation'
     }
     ];
 
+    const toOrder=(record)=>{
+      SessionStorage.set('dailyTrainTicket',record);
+      router.push('/order');
+    };
     const onAdd = () => {
       dailyTrainTicket.value = {};
       visible.value = true;
@@ -346,7 +356,8 @@ export default defineComponent({
       onEdit,
       onDelete,
       params,
-      calDuration
+      calDuration,
+      toOrder
     };
   },
 });
