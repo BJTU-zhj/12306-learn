@@ -152,7 +152,7 @@ import TrainStationSelectView from "@/components/station-select.vue";
 import dayjs from "dayjs";
 
 export default defineComponent({
-  name: "daily-train-ticket-view",
+  name: "ticket-view",
   components: {TrainStationSelectView, TrainSelectView},
   setup() {
     const visible = ref(false);
@@ -335,7 +335,7 @@ export default defineComponent({
     };
 
     const onDelete = (record) => {
-      axios.delete("/business/admin/daily-train-ticket/delete/" + record.id).then((response) => {
+      axios.delete("/business/daily-train-ticket/delete/" + record.id).then((response) => {
         const data = response.data;
         if (data.success) {
           notification.success({description: "删除成功！"});
@@ -350,7 +350,7 @@ export default defineComponent({
     };
 
     const handleOk = () => {
-      axios.post("/business/admin/daily-train-ticket/save", dailyTrainTicket.value).then((response) => {
+      axios.post("/business/daily-train-ticket/save", dailyTrainTicket.value).then((response) => {
         let data = response.data;
         if (data.success) {
           notification.success({description: "保存成功！"});
@@ -373,7 +373,7 @@ export default defineComponent({
         };
       }
       loading.value = true;
-      axios.get("/business/admin/daily-train-ticket/query-list", {
+      axios.get("/business/daily-train-ticket/query-list", {
         params: {
           page: param.page,
           size: param.size,
