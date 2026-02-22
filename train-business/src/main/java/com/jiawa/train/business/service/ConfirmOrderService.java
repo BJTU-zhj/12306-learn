@@ -2,6 +2,7 @@ package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
@@ -9,14 +10,18 @@ import com.github.pagehelper.PageInfo;
 import com.jiawa.train.business.DTO.ConfirmOrderDoDTO;
 import com.jiawa.train.business.DTO.ConfirmOrderQueryDTO;
 import com.jiawa.train.business.DTO.ConfirmOrderSaveDTO;
+import com.jiawa.train.business.DTO.ConfirmOrderTicketDTO;
 import com.jiawa.train.business.VO.ConfirmOrderQueryVO;
 import com.jiawa.train.business.domain.ConfirmOrder;
 import com.jiawa.train.business.domain.ConfirmOrderExample;
 import com.jiawa.train.business.domain.DailyTrainTicket;
 import com.jiawa.train.business.enums.ConfirmOrderStatusEnum;
+import com.jiawa.train.business.enums.SeatTypeEnum;
 import com.jiawa.train.business.mapper.ConfirmOrderMapper;
 import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.context.LoginMemberContext;
+import com.jiawa.train.common.exception.BusinessException;
+import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -108,6 +113,43 @@ public class ConfirmOrderService {
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.queryByUnique(date, trainCode, start, end);
         LOG.info("查询到的余票信息：{}", dailyTrainTicket);
         //减库存，预减，检验合法性
+        //遍历本次请求的全部车票
+        for (ConfirmOrderTicketDTO ticket : confirmOrderDoDTO.getTickets()){
+            //首先获取本车票选座的座位类型
+            String seatTypeCode = ticket.getSeatTypeCode();
+            SeatTypeEnum seatTypeEnum= EnumUtil.getBy(SeatTypeEnum::getCode, seatTypeCode);
+            //根据座位类型进行操作
+            switch (seatTypeEnum){
+                case YDZ -> {
+                    if(dailyTrainTicket.getYdz()<=0){
+                        throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
+                    }
+                    int ticketCount=dailyTrainTicket.getYdz()-1;
+                    dailyTrainTicket.setYdz(ticketCount);
+                }
+                case EDZ -> {
+                    if(dailyTrainTicket.getEdz()<=0){
+                        throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
+                    }
+                    int ticketCount=dailyTrainTicket.getEdz()-1;
+                    dailyTrainTicket.setEdz(ticketCount);
+                }
+                case RW -> {
+                    if(dailyTrainTicket.getRw()<=0){
+                        throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
+                    }
+                    int ticketCount=dailyTrainTicket.getRw()-1;
+                    dailyTrainTicket.setRw(ticketCount);
+                }
+                case YW -> {
+                    if(dailyTrainTicket.getYw()<=0){
+                        throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
+                    }
+                    int ticketCount=dailyTrainTicket.getYw()-1;
+                    dailyTrainTicket.setYw(ticketCount);
+                }
+            }
+        }
 
         //选座
 
