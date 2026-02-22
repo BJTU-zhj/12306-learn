@@ -56,7 +56,7 @@ public class DailyTrainSeatService {
     //查询列表
     public PageVO<DailyTrainSeatQueryVO> queryList(DailyTrainSeatQueryDTO dailyTrainSeatQueryDTO){
         DailyTrainSeatExample dailyTrainSeatExample = new DailyTrainSeatExample();
-        dailyTrainSeatExample.setOrderByClause("date desc,train_code asc,carriage_index  asc");
+        dailyTrainSeatExample.setOrderByClause("date desc,train_code asc,carriage_index  asc,carriage_seat_index asc");
         DailyTrainSeatExample.Criteria criteria = dailyTrainSeatExample.createCriteria();
         //条件查询
         if(ObjectUtil.isNotEmpty(dailyTrainSeatQueryDTO.getTrainCode())){
@@ -130,6 +130,7 @@ public class DailyTrainSeatService {
     //根据时间、车次、车厢获取所有的seat
     public List<DailyTrainSeat> selectByDateTrainCodeCarriage(Date date, String trainCode, Integer carriageIndex){
         DailyTrainSeatExample dailyTrainSeatExample = new DailyTrainSeatExample();
+        dailyTrainSeatExample.setOrderByClause("carriage_seat_index asc");
         dailyTrainSeatExample.createCriteria()
                 .andDateEqualTo(date)
                 .andTrainCodeEqualTo(trainCode)
