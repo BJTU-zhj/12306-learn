@@ -234,7 +234,7 @@ export default defineComponent({
     ];
 
     const toOrder=(record)=>{
-      SessionStorage.set('dailyTrainTicket',record);
+      SessionStorage.set(SESSION_ORDER,record);
       router.push('/order');
     };
     const onAdd = () => {
@@ -297,6 +297,8 @@ export default defineComponent({
         notification.error({description: "请输入终点站"});
         return;
       }
+      //保存查询参数
+      SessionStorage.set(SESSION_TICKET_PARAMS, params.value);
       if (!param) {
         param = {
           page: 1,
@@ -336,10 +338,13 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // handleQuery({
-      //   page: 1,
-      //   size: pagination.value.pageSize
-      // });
+      params.value=SessionStorage.get(SESSION_TICKET_PARAMS)||{};
+      if(Tool.isNotEmpty(params.value)){
+        handleQuery({
+          page: 1,
+          size: pagination.value.pageSize
+        });
+      }
     });
 
     return {

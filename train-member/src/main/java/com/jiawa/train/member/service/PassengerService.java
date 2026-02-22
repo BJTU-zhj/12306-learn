@@ -72,4 +72,15 @@ public class PassengerService {
         passengerMapper.deleteByPrimaryKey(id);
     }
 
+    //根据当前用户id查询其所有的乘客人列表
+    public List<PassengerQueryVO> queryMine(){
+        //获取当前用户id
+        Long memberId = LoginMemberContext.getId();
+        PassengerExample passengerExample = new PassengerExample();
+        passengerExample.setOrderByClause("id asc");
+        passengerExample.createCriteria().andMemberIdEqualTo(memberId);
+        List<Passenger> passengerList = passengerMapper.selectByExample(passengerExample);
+        return BeanUtil.copyToList(passengerList, PassengerQueryVO.class);
+    }
+
 }

@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.jiawa.train.business.enums.SeatColEnum;
 import com.jiawa.train.business.enums.SeatTypeEnum;
 import com.jiawa.train.business.enums.TrainTypeEnum;
+import com.jiawa.train.member.enums.PassengerTypeEnum;
 
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -16,14 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnumGenerator {
-    static String path = "admin/src/assets/js/enums.js";
+//    static String path = "admin/src/assets/js/enums.js";
+    static String path = "web/src/assets/js/enums.js";
 
     public static void main(String[] args) {
         StringBuffer bufferObject = new StringBuffer();
         StringBuffer bufferArray = new StringBuffer();
         long begin = System.currentTimeMillis();
         try {
-//            toJson(PassengerTypeEnum.class, bufferObject, bufferArray);
+            toJson(PassengerTypeEnum.class, bufferObject, bufferArray);
             toJson(TrainTypeEnum.class, bufferObject, bufferArray);
             toJson(SeatTypeEnum.class, bufferObject, bufferArray);
             toJson(SeatColEnum.class, bufferObject, bufferArray);
