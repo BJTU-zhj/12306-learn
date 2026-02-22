@@ -200,8 +200,6 @@ export default defineComponent({
       // 前端校验不一定准，但前端校验可以减轻后端很多压力
       // 注意：这段只是校验，必须copy出seatTypesTemp变量来扣减，用原始的seatTypes去扣减，会影响真实的库存
       let seatTypesTemp = Tool.copy(seatTypes);
-      console.log("!!!!!!", seatTypesTemp)
-      console.log("????", tickets)
       for (let i = 0; i < tickets.value.length; i++) {
         for (let j = 0; j < seatTypesTemp.length; j++) {
           if (seatTypesTemp[j].code === tickets.value[i].seatTypeCode) {
@@ -287,8 +285,6 @@ export default defineComponent({
 
     //确认提交订单执行
     const handleOk=()=>{
-      console.log("选好的座位：",chooseSeatObj.value);
-
       // 设置每张票的座位
       // 先清空购票列表的座位，有可能之前选了并设置座位了，但选座数不对被拦截了，又重新选一遍
       for (let i = 0; i < tickets.value.length; i++) {
@@ -312,6 +308,32 @@ export default defineComponent({
         notification.error({description: '所选座位数小于购票数'});
         return;
       }
+
+      console.log("最终购票：", tickets.value);
+
+      axios.post("/business/confirm-order/do", {
+        dailyTrainTicketId: dailyTrainTicket.id,
+        date: dailyTrainTicket.date,
+        trainCode: dailyTrainTicket.trainCode,
+        start: dailyTrainTicket.start,
+        end: dailyTrainTicket.end,
+        tickets: tickets.value,
+        // imageCodeToken: imageCodeToken.value,
+        // imageCode: imageCode.value,
+        // lineNumber: lineNumber.value
+      }).then((response) => {
+        let data = response.data;
+        if (data.success) {
+          // notification.success({description: "下单成功！"});
+          visible.value = false;
+          // imageCodeModalVisible.value = false;
+          // lineModalVisible.value = true;
+          // confirmOrderId.value = data.content;
+          // queryLineCount();
+        } else {
+          notification.error({description: data.message});
+        }
+      });
 
     };
 
