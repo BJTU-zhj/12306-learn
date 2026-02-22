@@ -116,4 +116,14 @@ public class DailyTrainCarriageService {
         LOG.info("结束生成{}的{}车次车厢每日数据", DateUtil.format(date, "yyyy-MM-dd"),trainCode);
     }
 
+    //根据座位类型查询某车次某天车厢信息
+    public List<DailyTrainCarriage> selectBySeatType(Date date, String trainCode, String seatType){
+        DailyTrainCarriageExample dailyTrainCarriageExample = new DailyTrainCarriageExample();
+        dailyTrainCarriageExample.createCriteria()
+                .andDateEqualTo(date)
+                .andTrainCodeEqualTo(trainCode)
+                .andSeatTypeEqualTo(seatType);
+        return dailyTrainCarriageMapper.selectByExample(dailyTrainCarriageExample);
+    }
+
 }

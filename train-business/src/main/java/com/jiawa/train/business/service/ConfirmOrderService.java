@@ -12,10 +12,9 @@ import com.jiawa.train.business.DTO.ConfirmOrderQueryDTO;
 import com.jiawa.train.business.DTO.ConfirmOrderSaveDTO;
 import com.jiawa.train.business.DTO.ConfirmOrderTicketDTO;
 import com.jiawa.train.business.VO.ConfirmOrderQueryVO;
-import com.jiawa.train.business.domain.ConfirmOrder;
-import com.jiawa.train.business.domain.ConfirmOrderExample;
-import com.jiawa.train.business.domain.DailyTrainTicket;
+import com.jiawa.train.business.domain.*;
 import com.jiawa.train.business.enums.ConfirmOrderStatusEnum;
+import com.jiawa.train.business.enums.SeatColEnum;
 import com.jiawa.train.business.enums.SeatTypeEnum;
 import com.jiawa.train.business.mapper.ConfirmOrderMapper;
 import com.jiawa.train.common.VO.PageVO;
@@ -28,13 +27,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ConfirmOrderService {
 
     private static final Logger LOG= LoggerFactory.getLogger(ConfirmOrderService.class);
+
+    @Resource
+    private DailyTrainCarriageService dailyTrainCarriageService;
+
+    @Resource
+    private DailyTrainSeatService dailyTrainSeatService;
+
+    //两个常量，对应一等座和二等座计算偏移值时的map
+    private static final Map<String,Integer> YDZ_OFFSET_MAP = new HashMap<>(
+            Map.ofEntries(
+                    Map.entry("A1",0),
+                    Map.entry("C1",1),
+                    Map.entry("D1",2),
+                    Map.entry("F1",3),
+                    Map.entry("A2",4),
+                    Map.entry("C2",5),
+                    Map.entry("D2",6),
+                    Map.entry("F2",7)
+            )
+    );
+
+    private static final Map<String,Integer> EDZ_OFFSET_MAP = new HashMap<>(
+            Map.ofEntries(
+                    Map.entry("A1",0),
+                    Map.entry("B1",1),
+                    Map.entry("C1",2),
+                    Map.entry("D1",3),
+                    Map.entry("F1",4),
+                    Map.entry("A2",5),
+                    Map.entry("B2",6),
+                    Map.entry("C2",7),
+                    Map.entry("D2",8),
+                    Map.entry("F2",9)
+            )
+    );
 
     @Resource
     private ConfirmOrderMapper confirmOrderMapper;
@@ -114,6 +147,64 @@ public class ConfirmOrderService {
         LOG.info("查询到的余票信息：{}", dailyTrainTicket);
         //减库存，预减，检验合法性
         //遍历本次请求的全部车票
+        ticketEnoughCheck(confirmOrderDoDTO, dailyTrainTicket);
+
+        //计算本次所有车票对与第一张车票的相对偏移值
+        List<Integer> absoluteToFirstTicket= new ArrayList<>();
+        List<Integer> offsetsToFirstTicket= new ArrayList<>();
+        List<ConfirmOrderTicketDTO> tickets = confirmOrderDoDTO.getTickets();
+        if(ObjectUtil.isNull(tickets.get(0).getSeat())){
+            LOG.info("本次请求属于无法选座类型，无需计算偏移值");
+            for (ConfirmOrderTicketDTO ticket : tickets){
+                getSeat(date, trainCode, ticket.getSeatTypeCode(),null,null);
+            }
+        }else {
+            LOG.info("本次请求属于可以选座类型，开始计算偏移值");
+            //判断是一等座还是二等座的情景
+            List<SeatColEnum> cols = SeatColEnum.getColsByType(tickets.get(0).getSeatTypeCode());
+            Map<String,Integer> offsetMap = cols.size() == 4 ? YDZ_OFFSET_MAP : EDZ_OFFSET_MAP;
+            //计算绝对位序
+            for (ConfirmOrderTicketDTO ticket : tickets){
+                String seat=ticket.getSeat();
+                absoluteToFirstTicket.add(offsetMap.get(seat));
+            }
+            LOG.info("本次请求的绝对位序：{}", absoluteToFirstTicket);
+            //计算相对位序
+            offsetsToFirstTicket.add(0);
+            for (int i = 1; i < absoluteToFirstTicket.size(); i++){
+                offsetsToFirstTicket.add(absoluteToFirstTicket.get(i) - absoluteToFirstTicket.get(i-1));
+            }
+            getSeat(date, trainCode, tickets.get(0).getSeatTypeCode(),tickets.get(0).getSeat().split("")[0],offsetsToFirstTicket);
+        }
+        LOG.info("本次请求的相对位序：{}", offsetsToFirstTicket);
+        //选座
+
+            //一个车厢一个车厢查找合适座位
+        //事务处理
+            //修改每日座位德 sell字段
+            //修改每日车票的余票信息
+            //更新订单状态信息为成功
+            //为会员增加购票记录
+
+    }
+
+    //一个车厢一个车厢查找合适座位
+    public void getSeat(Date date, String trainCode, String seatType,String column,List<Integer> offsetsToFirstTicket){
+        List<DailyTrainCarriage> dailyTrainCarriageList = dailyTrainCarriageService.selectBySeatType(date,trainCode,seatType);
+        LOG.info("查找到的符合车厢数：{}", dailyTrainCarriageList.size());
+        for (DailyTrainCarriage dailyTrainCarriage : dailyTrainCarriageList){
+            LOG.info("开始处理车厢：{}", dailyTrainCarriage.getIndex());
+            List<DailyTrainSeat> dailyTrainSeatList = dailyTrainSeatService.selectByDateTrainCodeCarriage(date,trainCode,dailyTrainCarriage.getIndex());
+            LOG.info("{}车厢查找到的符合座位数：{}",dailyTrainCarriage.getIndex(), dailyTrainSeatList.size());
+        }
+        LOG.info("column:{}", column);
+        LOG.info("offsetsToFirstTicket:{}", offsetsToFirstTicket);
+
+    }
+
+    //减库存，预减，检验合法性
+    //遍历本次请求的全部车票
+    private  void ticketEnoughCheck(ConfirmOrderDoDTO confirmOrderDoDTO, DailyTrainTicket dailyTrainTicket) {
         for (ConfirmOrderTicketDTO ticket : confirmOrderDoDTO.getTickets()){
             //首先获取本车票选座的座位类型
             String seatTypeCode = ticket.getSeatTypeCode();
@@ -124,42 +215,32 @@ public class ConfirmOrderService {
                     if(dailyTrainTicket.getYdz()<=0){
                         throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
                     }
-                    int ticketCount=dailyTrainTicket.getYdz()-1;
+                    int ticketCount= dailyTrainTicket.getYdz()-1;
                     dailyTrainTicket.setYdz(ticketCount);
                 }
                 case EDZ -> {
                     if(dailyTrainTicket.getEdz()<=0){
                         throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
                     }
-                    int ticketCount=dailyTrainTicket.getEdz()-1;
+                    int ticketCount= dailyTrainTicket.getEdz()-1;
                     dailyTrainTicket.setEdz(ticketCount);
                 }
                 case RW -> {
                     if(dailyTrainTicket.getRw()<=0){
                         throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
                     }
-                    int ticketCount=dailyTrainTicket.getRw()-1;
+                    int ticketCount= dailyTrainTicket.getRw()-1;
                     dailyTrainTicket.setRw(ticketCount);
                 }
                 case YW -> {
                     if(dailyTrainTicket.getYw()<=0){
                         throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_NOT_ENOUGH);
                     }
-                    int ticketCount=dailyTrainTicket.getYw()-1;
+                    int ticketCount= dailyTrainTicket.getYw()-1;
                     dailyTrainTicket.setYw(ticketCount);
                 }
             }
         }
-
-        //选座
-
-            //一个车厢一个车厢查找合适座位
-        //事务处理
-            //修改每日座位德 sell字段
-            //修改每日车票的余票信息
-            //更新订单状态信息为成功
-            //为会员增加购票记录
-
     }
 
 }
