@@ -174,11 +174,12 @@ public class ConfirmOrderService {
             //计算相对位序
             offsetsToFirstTicket.add(0);
             for (int i = 1; i < absoluteToFirstTicket.size(); i++){
-                offsetsToFirstTicket.add(absoluteToFirstTicket.get(i) - absoluteToFirstTicket.get(i-1));
+                offsetsToFirstTicket.add(absoluteToFirstTicket.get(i) - absoluteToFirstTicket.get(0));
             }
+            LOG.info("本次请求的相对位序：{}", offsetsToFirstTicket);
             getSeat(date, trainCode, tickets.get(0).getSeatTypeCode(),tickets.get(0).getSeat().split("")[0],offsetsToFirstTicket,dailyTrainTicket);
         }
-        LOG.info("本次请求的相对位序：{}", offsetsToFirstTicket);
+
         //选座
 
             //一个车厢一个车厢查找合适座位
@@ -196,19 +197,87 @@ public class ConfirmOrderService {
         LOG.info("查找到的符合车厢数：{}", dailyTrainCarriageList.size());
         for (DailyTrainCarriage dailyTrainCarriage : dailyTrainCarriageList){
             LOG.info("开始处理车厢：{}", dailyTrainCarriage.getIndex());
+            //本车厢是否可能找到全部的座位
+            Boolean isFindAllCarriage = true;
             List<DailyTrainSeat> dailyTrainSeatList = dailyTrainSeatService.selectByDateTrainCodeCarriage(date,trainCode,dailyTrainCarriage.getIndex());
             LOG.info("{}车厢查找到的符合座位数：{}",dailyTrainCarriage.getIndex() , dailyTrainSeatList.size());
             for (DailyTrainSeat dailyTrainSeat : dailyTrainSeatList){
+                //以本座位为首的选座是否成功
+                Boolean isFindAllSeat=true;
                 LOG.info("开始处理{}车厢的座位：{}", dailyTrainSeat.getCarriageIndex(),dailyTrainSeat.getCarriageSeatIndex());
-                Boolean isSell =calSell(dailyTrainTicket,dailyTrainSeat);
-                if(isSell){
-                    continue;
+                //根据column区分选座与不选座两种情况
+                //选座情况
+                if(StrUtil.isNotBlank(column)){
+                    LOG.info("开始处理选座情况,当前座位的列为：{}，目标座位的列为：{}", dailyTrainSeat.getCol(),column);
+                    //选座时首先判断列数是否符合
+                    //符合情况
+                    if(dailyTrainSeat.getCol().equals(column)){
+                        //第一位满足了列还要满足sell
+                        Boolean isSell =calSell(dailyTrainTicket,dailyTrainSeat);
+                        //如果可售
+                        if(isSell){
+                            //对比后边的偏移座位，有一个不符合的就首页后移重新来过
+                            for (int i=1;i<offsetsToFirstTicket.size();i++){
+                                Integer aimIndex=offsetsToFirstTicket.get(i)+dailyTrainSeat.getCarriageSeatIndex()-1;
+                                LOG.info("{}车厢{}号座作为首个座位达标！当前要探索的座位号为：{}", dailyTrainSeat.getCarriageIndex(), dailyTrainSeat.getCarriageSeatIndex(),aimIndex+1);
+                                //如果当前偏移座位已经超出车厢座位数，则应该终止，找下一个车厢，这样做会让选座保持在统一车厢
+                                if(aimIndex>=dailyTrainSeatList.size()){
+                                    LOG.info("{}车厢{}号座作为首个座位已经让该车厢不可能探索成功！", dailyTrainSeat.getCarriageIndex(), dailyTrainSeat.getCarriageSeatIndex());
+                                    isFindAllCarriage = false;
+                                    break;
+                                }
+                                DailyTrainSeat aimDailyTrainSeat = dailyTrainSeatList.get(aimIndex);
+                                Boolean aimIsSell =calSell(dailyTrainTicket,aimDailyTrainSeat);
+                                //如果不可售，则首个座位后移重新探索
+                                if(!aimIsSell){
+                                    isFindAllSeat = false;
+                                    break;
+                                }
+                            }
+                            //查看标志位，决定下一步结果
+                            //如果isFindAllCarriage为false说明，本车厢不可能找到满足条件的座位了，应跳过车厢
+                            if(!isFindAllCarriage){
+                                break;
+                            }
+                            //本车厢有希望
+                            else{
+                                //isFindAllSeat为true代表上边的偏移循环安然退出，座位全部满足
+                                if(isFindAllSeat){
+                                    LOG.info("座位全部找到！！当前首个座位是{}车厢{}号座位，后续偏移是{}", dailyTrainSeat.getCarriageIndex(),dailyTrainSeat.getCarriageSeatIndex(),offsetsToFirstTicket);
+                                    //TODO 修改数据库
+                                    return;
+                                }else{
+                                    LOG.info("以{}车厢{}号座为首座的探索失败，首座后移",dailyTrainSeat.getCarriageIndex(),dailyTrainSeat.getCarriageSeatIndex());
+                                    continue;
+                                }
+
+                            }
+                        }
+                        //不可售
+                        else{
+                            continue;
+                        }
+                    }
+                    //列不符合情况
+                    else{
+                        continue;
+                    }
+                }
+                else {
+                    LOG.info("开始处理不选座情况");
+                    //首先判断是否sell可售
+                    Boolean isSell =calSell(dailyTrainTicket,dailyTrainSeat);
+                    if(isSell){
+                        LOG.info("不选座--座位可售！！当前座位是{}车厢{}号座位", dailyTrainSeat.getCarriageIndex(),dailyTrainSeat.getCarriageSeatIndex());
+                        //todo 修改数据库
+                        return;
+                    }else{
+                        LOG.info("不选座--座位不可售！！当前座位是{}车厢{}号座位", dailyTrainSeat.getCarriageIndex(),dailyTrainSeat.getCarriageSeatIndex());
+                        continue;
+                    }
                 }
             }
         }
-        LOG.info("column:{}", column);
-        LOG.info("offsetsToFirstTicket:{}", offsetsToFirstTicket);
-
     }
 
     /**
