@@ -70,7 +70,7 @@ const routes = [
             component: ()=>import('../views/main/business/ConfirmOrderView.vue')
           }]
       },
-        {
+      {
         path: 'batch',
         children: [
           {
@@ -78,7 +78,16 @@ const routes = [
             component: ()=>import('../views/main/batch/JobView.vue')
           }
         ]
-        }
+      },
+      {
+        path: 'member',
+        children: [
+            {
+              path: 'ticket',
+              component: ()=>import('../views/main/member/TicketView.vue')
+            }
+            ]
+      }
     ]
   },
   {
