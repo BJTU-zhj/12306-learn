@@ -5,8 +5,8 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.jiawa.train.common.DTO.MemberTicketDTO;
 import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.common.util.SnowUtil;
 import com.jiawa.train.member.DTO.TicketQueryDTO;
 import com.jiawa.train.member.DTO.TicketSaveDTO;
@@ -50,7 +50,10 @@ public class TicketService {
         TicketExample ticketExample = new TicketExample();
         ticketExample.setOrderByClause("id desc");
         TicketExample.Criteria criteria = ticketExample.createCriteria();
-
+        //只查询当前用户的
+        if(ObjectUtil.isNotNull(ticketQueryDTO.getMemberId())){
+            criteria.andMemberIdEqualTo(ticketQueryDTO.getMemberId());
+        }
         PageHelper.startPage(ticketQueryDTO.getPage(),ticketQueryDTO.getSize());
         List<Ticket> ticketList =ticketMapper.selectByExample(ticketExample);
         ;
@@ -64,9 +67,22 @@ public class TicketService {
         return pageVO;
     }
 
+
     //删除,根据id
     public void delete(Long id){
         ticketMapper.deleteByPrimaryKey(id);
+    }
+
+    //feign调用
+    public void saveConfirm(MemberTicketDTO memberTicketDTO){
+        DateTime now=DateTime.now();
+        Ticket ticket = BeanUtil.copyProperties(memberTicketDTO, Ticket.class);
+        if(ObjectUtil.isEmpty(ticket.getId())) {
+            ticket.setId(SnowUtil.getSnowflakeId());
+            ticket.setCreateTime(now);
+            ticket.setUpdateTime(now);
+            ticketMapper.insert(ticket);
+        }
     }
 
 }

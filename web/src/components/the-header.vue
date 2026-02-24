@@ -28,6 +28,11 @@
           <user-outlined /> &nbsp; 余票查询
         </router-link>
       </a-menu-item>
+      <a-menu-item key="/my-tickets">
+        <router-link to="/my-tickets">
+          <user-outlined /> &nbsp; 我的车票
+        </router-link>
+      </a-menu-item>
     </a-menu>
   </a-layout-header>
 </template>

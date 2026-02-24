@@ -1,16 +1,22 @@
 package com.jiawa.train.business.service;
 
 import cn.hutool.core.date.DateTime;
+import com.alibaba.fastjson.JSON;
+import com.jiawa.train.business.DTO.ConfirmOrderTicketDTO;
+import com.jiawa.train.business.domain.ConfirmOrder;
 import com.jiawa.train.business.domain.DailyTrainSeat;
 import com.jiawa.train.business.domain.DailyTrainTicket;
+import com.jiawa.train.business.feign.MemberFeign;
 import com.jiawa.train.business.mapper.DailyTrainSeatMapper;
 import com.jiawa.train.business.mapper.custom.DailyTrainTicketCustomMapper;
+import com.jiawa.train.common.DTO.MemberTicketDTO;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -24,14 +30,26 @@ public class AfterConfirmOrderService {
     @Resource
     private DailyTrainTicketCustomMapper dailyTrainTicketCustomMapper;
 
+    @Resource
+    private MemberFeign memberFeign;
+
+    /*
+    dailyTrainTicket:满足当前订单的车票（某站到某站的余票详情）
+    dailyTrainSeatList:当前订单所选座位（某站到某站的多个座位）
+    confirmOrder:business当前订单信息，前端传递的主要信息，其中tickets为选出dailyTrainSeatList的依据。顺序一致
+     */
     @Transactional
-    public void batchOrderTicketsUpdate(DailyTrainTicket dailyTrainTicket,List<DailyTrainSeat> dailyTrainSeatList) {
-        for (DailyTrainSeat dailyTrainSeat : dailyTrainSeatList){
+    public void batchOrderTicketsUpdate(DailyTrainTicket dailyTrainTicket, List<DailyTrainSeat> dailyTrainSeatList, ConfirmOrder confirmOrder) {
+        //获取车票
+        String ticketsJson = confirmOrder.getTickets();
+        List<ConfirmOrderTicketDTO> ticketList= JSON.parseArray(ticketsJson, ConfirmOrderTicketDTO.class);
+
+        for(int seatIndex=0;seatIndex<dailyTrainSeatList.size();seatIndex++){
             //修改每日座位德 sell字段
             DateTime now= DateTime.now();
             DailyTrainSeat aimDailyTrainSeat = new DailyTrainSeat();
-            aimDailyTrainSeat.setId(dailyTrainSeat.getId());
-            aimDailyTrainSeat.setSell(dailyTrainSeat.getSell());
+            aimDailyTrainSeat.setId(dailyTrainSeatList.get(seatIndex).getId());
+            aimDailyTrainSeat.setSell(dailyTrainSeatList.get(seatIndex).getSell());
             aimDailyTrainSeat.setUpdateTime(now);
             dailyTrainSeatMapper.updateByPrimaryKeySelective(aimDailyTrainSeat);
 
@@ -48,7 +66,7 @@ public class AfterConfirmOrderService {
             Integer startStationIndex = dailyTrainTicket.getStartIndex();
             Integer endStationIndex = dailyTrainTicket.getEndIndex();
             //计算受影响的站序最大最小起始站序和最大最小终点站序
-            char[] sellChar= dailyTrainSeat.getSell().toCharArray();
+            char[] sellChar= dailyTrainSeatList.get(seatIndex).getSell().toCharArray();
             //受影响的最小起始站序,从startStationIndex这个站序往前探索，遇1停止
             Integer minStartIndex=0;
             for (int i=startStationIndex-1;i>=0;i--){
@@ -76,11 +94,33 @@ public class AfterConfirmOrderService {
             dailyTrainTicketCustomMapper.updateInfluenceTickets(
                     dailyTrainTicket.getDate(),
                     dailyTrainTicket.getTrainCode(),
-                    dailyTrainSeat.getSeatType(),
+                    dailyTrainSeatList.get(seatIndex).getSeatType(),
                     minStartIndex,
                     maxStartIndex,
                     minEndIndex,
                     maxEndIndex);
+
+            //保存订单信息到member端
+            MemberTicketDTO memberTicketDTO = new MemberTicketDTO();
+            memberTicketDTO.setMemberId(confirmOrder.getMemberId());
+            memberTicketDTO.setPassengerId(ticketList.get(seatIndex).getPassengerId());
+            memberTicketDTO.setPassengerName(ticketList.get(seatIndex).getPassengerName());
+            memberTicketDTO.setTrainDate(dailyTrainSeatList.get(seatIndex).getDate());
+            memberTicketDTO.setTrainCode(confirmOrder.getTrainCode());
+            memberTicketDTO.setCarriageIndex(dailyTrainSeatList.get(seatIndex).getCarriageIndex());
+            memberTicketDTO.setSeatRow(dailyTrainSeatList.get(seatIndex).getRow());
+            memberTicketDTO.setSeatCol(dailyTrainSeatList.get(seatIndex).getCol());
+            memberTicketDTO.setStartStation(confirmOrder.getStart());
+            memberTicketDTO.setStartTime(dailyTrainTicket.getStartTime());
+            memberTicketDTO.setEndStation(dailyTrainTicket.getEnd());
+            memberTicketDTO.setEndTime(dailyTrainTicket.getEndTime());
+            memberTicketDTO.setSeatType(ticketList.get(seatIndex).getSeatTypeCode());
+            memberTicketDTO.setCreateTime(new Date());
+            memberTicketDTO.setUpdateTime(new Date());
+
+            memberFeign.saveConfirm(memberTicketDTO);
+
+
         }
 
     }

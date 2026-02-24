@@ -1,8 +1,7 @@
-package com.jiawa.train.member.controller;
+package com.jiawa.train.member.controller.admin;
 
 import com.jiawa.train.common.VO.CommonResp;
 import com.jiawa.train.common.VO.PageVO;
-import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.member.DTO.TicketQueryDTO;
 import com.jiawa.train.member.DTO.TicketSaveDTO;
 import com.jiawa.train.member.VO.TicketQueryVO;
@@ -12,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/ticket")
-public class TicketController {
+@RequestMapping("/admin/ticket")
+public class TicketAdminController {
 
     @Autowired
     private TicketService ticketService;
@@ -26,8 +25,7 @@ public class TicketController {
 
     @GetMapping("/query-list")
     public CommonResp<PageVO<TicketQueryVO>> queryList(@Valid TicketQueryDTO paseengerQueryDTO){
-        //添加登录用户id
-        paseengerQueryDTO.setMemberId(LoginMemberContext.getId());
+
         PageVO<TicketQueryVO> pageVO = ticketService.queryList(paseengerQueryDTO);
         return new CommonResp<>(pageVO);
     }

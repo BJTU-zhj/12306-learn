@@ -190,7 +190,7 @@ public class ConfirmOrderService {
 
         //事务处理
             //修改每日座位德 sell字段
-        afterConfirmOrderService.batchOrderTicketsUpdate(dailyTrainTicket,lastSelectSeatList);
+        afterConfirmOrderService.batchOrderTicketsUpdate(dailyTrainTicket,lastSelectSeatList,confirmOrder);
             //修改每日车票的余票信息
             //更新订单状态信息为成功
             //为会员增加购票记录
