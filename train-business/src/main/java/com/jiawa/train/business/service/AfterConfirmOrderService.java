@@ -6,7 +6,9 @@ import com.jiawa.train.business.DTO.ConfirmOrderTicketDTO;
 import com.jiawa.train.business.domain.ConfirmOrder;
 import com.jiawa.train.business.domain.DailyTrainSeat;
 import com.jiawa.train.business.domain.DailyTrainTicket;
+import com.jiawa.train.business.enums.ConfirmOrderStatusEnum;
 import com.jiawa.train.business.feign.MemberFeign;
+import com.jiawa.train.business.mapper.ConfirmOrderMapper;
 import com.jiawa.train.business.mapper.DailyTrainSeatMapper;
 import com.jiawa.train.business.mapper.custom.DailyTrainTicketCustomMapper;
 import com.jiawa.train.common.DTO.MemberTicketDTO;
@@ -32,6 +34,9 @@ public class AfterConfirmOrderService {
 
     @Resource
     private MemberFeign memberFeign;
+
+    @Resource
+    private ConfirmOrderMapper confirmOrderMapper;
 
     /*
     dailyTrainTicket:满足当前订单的车票（某站到某站的余票详情）
@@ -117,9 +122,12 @@ public class AfterConfirmOrderService {
             memberTicketDTO.setSeatType(ticketList.get(seatIndex).getSeatTypeCode());
             memberTicketDTO.setCreateTime(new Date());
             memberTicketDTO.setUpdateTime(new Date());
-
             memberFeign.saveConfirm(memberTicketDTO);
 
+            //更新订单信息为成功
+            confirmOrder.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
+            confirmOrder.setUpdateTime(new Date());
+            confirmOrderMapper.updateByPrimaryKeySelective(confirmOrder);
 
         }
 

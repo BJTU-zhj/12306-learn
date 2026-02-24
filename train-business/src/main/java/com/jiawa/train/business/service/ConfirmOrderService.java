@@ -145,6 +145,7 @@ public class ConfirmOrderService {
         confirmOrder.setCreateTime(now);
         confirmOrder.setUpdateTime(now);
         confirmOrder.setTickets(JSON.toJSONString(confirmOrderDoDTO.getTickets()));
+        confirmOrderMapper.insert(confirmOrder);
 
         //最终选座结果
         List<DailyTrainSeat> lastSelectSeatList = new ArrayList<>();
