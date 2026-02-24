@@ -42,6 +42,9 @@ public class ConfirmOrderService {
     @Resource
     private DailyTrainSeatService dailyTrainSeatService;
 
+    @Resource
+    private AfterConfirmOrderService afterConfirmOrderService;
+
     //两个常量，对应一等座和二等座计算偏移值时的map
     private static final Map<String,Integer> YDZ_OFFSET_MAP = new HashMap<>(
             Map.ofEntries(
@@ -184,11 +187,10 @@ public class ConfirmOrderService {
 
         LOG.info("本次请求的选座结果：{}", lastSelectSeatList);
 
-        //选座
 
-            //一个车厢一个车厢查找合适座位
         //事务处理
             //修改每日座位德 sell字段
+        afterConfirmOrderService.batchOrderSellUpdate(lastSelectSeatList);
             //修改每日车票的余票信息
             //更新订单状态信息为成功
             //为会员增加购票记录
