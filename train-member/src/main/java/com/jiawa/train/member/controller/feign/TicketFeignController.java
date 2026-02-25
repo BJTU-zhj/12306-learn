@@ -17,7 +17,7 @@ public class TicketFeignController {
     @Autowired
     private TicketService ticketService;
 
-    @PostMapping("/save-confiem")
+    @PostMapping("/save-confirm")
     public CommonResp<Object> saveConfirm(@Valid @RequestBody MemberTicketDTO memberTicketDTO){
         ticketService.saveConfirm(memberTicketDTO);
         return new CommonResp<>();

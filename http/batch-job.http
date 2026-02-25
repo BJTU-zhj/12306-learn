@@ -53,7 +53,7 @@ Content-Type: application/json
 }
 
 ###hello测试
-GET http://localhost:8004/batch/hello
+GET http://localhost:8000/batch/hello
 Content-Type: application/json
 
 ###手动执行一次
