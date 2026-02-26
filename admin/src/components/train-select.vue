@@ -44,14 +44,22 @@ export default defineComponent({
      * 查询所有车次
      */
     const queryTrainCode = () => {
-      axios.get("/business/admin/train/query-all").then((response) => {
-        let data = response.data;
-        if (data.success) {
-          trains.value = data.content;
-        } else {
-          notification.error({ description: data.message });
-        }
-      });
+      let list=SessionStorage.get(SESSION_ALL_TRAIN);
+      if(Tool.isNotEmpty(list)){
+        console.log("从缓存中获取车次列表");
+        trains.value=list;
+      }else {
+        axios.get("/business/admin/train/query-all").then((response) => {
+          let data = response.data;
+          if (data.success) {
+            trains.value = data.content;
+            console.log("将车次信息保存进缓存");
+            SessionStorage.set(SESSION_ALL_TRAIN,data.content);
+          } else {
+            notification.error({description: data.message});
+          }
+        });
+      }
     };
 
     /**

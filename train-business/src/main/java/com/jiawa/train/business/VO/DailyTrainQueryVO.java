@@ -1,11 +1,13 @@
 package com.jiawa.train.business.VO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class DailyTrainQueryVO {
+import java.io.Serializable;
+import java.util.Date;
+
+public class DailyTrainQueryVO implements Serializable {
 
     /**
      * id
