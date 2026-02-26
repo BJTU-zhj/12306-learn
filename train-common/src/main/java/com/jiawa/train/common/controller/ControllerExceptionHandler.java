@@ -1,8 +1,10 @@
 package com.jiawa.train.common.controller;
 
 
-import com.jiawa.train.common.exception.BusinessException;
+import cn.hutool.core.util.StrUtil;
 import com.jiawa.train.common.VO.CommonResp;
+import com.jiawa.train.common.exception.BusinessException;
+import io.seata.core.context.RootContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.ObjectError;
@@ -25,7 +27,11 @@ public class ControllerExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public CommonResp exceptionHandler(Exception e){
+    public CommonResp exceptionHandler(Exception e) throws Exception {
+        LOG.info("分布式事务，全局异常处理，事务ID:{}", RootContext.getXID());
+        if(StrUtil.isNotBlank(RootContext.getXID())){
+            throw e;
+        }
         CommonResp commonResp = new CommonResp();
         commonResp.setSuccess(false);
         commonResp.setMessage("开发错误，请联系管理员");

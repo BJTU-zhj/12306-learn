@@ -14,6 +14,7 @@ import com.jiawa.train.member.VO.TicketQueryVO;
 import com.jiawa.train.member.domain.Ticket;
 import com.jiawa.train.member.domain.TicketExample;
 import com.jiawa.train.member.mapper.TicketMapper;
+import io.seata.core.context.RootContext;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,7 @@ public class TicketService {
 
     //feign调用
     public void saveConfirm(MemberTicketDTO memberTicketDTO){
+        LOG.info("开始分布式事务，Member模块，事务ID是:{}", RootContext.getXID());
         DateTime now=DateTime.now();
         Ticket ticket = BeanUtil.copyProperties(memberTicketDTO, Ticket.class);
         if(ObjectUtil.isEmpty(ticket.getId())) {
@@ -83,6 +85,14 @@ public class TicketService {
             ticket.setUpdateTime(now);
             ticketMapper.insert(ticket);
         }
+        //为了测试分布式事务，这里抛出一个异常
+//        if(true){
+//            try {
+//                throw new Exception("测试分布式事务异常");
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
     }
 
 }

@@ -12,11 +12,12 @@ import com.jiawa.train.business.mapper.ConfirmOrderMapper;
 import com.jiawa.train.business.mapper.DailyTrainSeatMapper;
 import com.jiawa.train.business.mapper.custom.DailyTrainTicketCustomMapper;
 import com.jiawa.train.common.DTO.MemberTicketDTO;
+import io.seata.core.context.RootContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -43,8 +44,12 @@ public class AfterConfirmOrderService {
     dailyTrainSeatList:当前订单所选座位（某站到某站的多个座位）
     confirmOrder:business当前订单信息，前端传递的主要信息，其中tickets为选出dailyTrainSeatList的依据。顺序一致
      */
-    @Transactional
+//    @Transactional
+    //此处调用了member模块，需要使用分布式事务
+    @GlobalTransactional
     public void batchOrderTicketsUpdate(DailyTrainTicket dailyTrainTicket, List<DailyTrainSeat> dailyTrainSeatList, ConfirmOrder confirmOrder) {
+
+        LOG.info("开始分布式事务，Business模块，事务ID是:{}", RootContext.getXID());
         //获取车票
         String ticketsJson = confirmOrder.getTickets();
         List<ConfirmOrderTicketDTO> ticketList= JSON.parseArray(ticketsJson, ConfirmOrderTicketDTO.class);
@@ -128,6 +133,7 @@ public class AfterConfirmOrderService {
             confirmOrder.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
             confirmOrder.setUpdateTime(new Date());
             confirmOrderMapper.updateByPrimaryKeySelective(confirmOrder);
+
 
         }
 
