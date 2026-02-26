@@ -8,5 +8,12 @@ Accept: application/json
 
 
 ###
-GET http://localhost:8000/business/admin/daily-train/query-list2?page=1&size=10
+GET http://localhost:8000/business/redis/set/zhj/shenningjie
 Accept: application/json
+token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6IjEzMDAwMDAwMDAwIiwiaWQiOjIwMTg4NzYwMTI5MDQ4NDEyMTYsImV4cCI6MTc3MzkwMjk1OSwiaWF0IjoxNzcwMzAyOTU5fQ.49UXDrgk-vH8jRZyziniWZc82iTayH-qSaZeFd3IiNQ
+
+
+###
+GET http://localhost:8000/business/redis/get/zhj
+Accept: application/json
+token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6IjEzMDAwMDAwMDAwIiwiaWQiOjIwMTg4NzYwMTI5MDQ4NDEyMTYsImV4cCI6MTc3MzkwMjk1OSwiaWF0IjoxNzcwMzAyOTU5fQ.49UXDrgk-vH8jRZyziniWZc82iTayH-qSaZeFd3IiNQ

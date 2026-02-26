@@ -61,6 +61,7 @@ public class DailyTrainTicketService {
     }
 
     //查询列表
+    //使用springboot的cache+redis
     public PageVO<DailyTrainTicketQueryVO> queryList(DailyTrainTicketQueryDTO dailyTrainTicketQueryDTO){
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.setOrderByClause("id desc");
