@@ -2,12 +2,15 @@ package com.jiawa.train.business.DTO;
 
 import com.jiawa.train.common.DTO.PageDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class DailyTrainTicketQueryDTO extends PageDTO {
+public class DailyTrainTicketQueryDTO extends PageDTO implements Serializable {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
@@ -18,13 +21,5 @@ public class DailyTrainTicketQueryDTO extends PageDTO {
 
     private String end;
 
-    @Override
-    public String toString() {
-        return "DailyTrainTicketQueryDTO{" +
-                "date=" + date +
-                ", trainCode='" + trainCode + '\'' +
-                ", start='" + start + '\'' +
-                ", end='" + end + '\'' +
-                '}';
-    }
+
 }

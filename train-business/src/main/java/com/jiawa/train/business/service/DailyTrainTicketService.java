@@ -23,6 +23,7 @@ import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -62,6 +63,7 @@ public class DailyTrainTicketService {
 
     //查询列表
     //使用springboot的cache+redis
+    @Cacheable(value = "DailyTrainTicketService.queryList")
     public PageVO<DailyTrainTicketQueryVO> queryList(DailyTrainTicketQueryDTO dailyTrainTicketQueryDTO){
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.setOrderByClause("id desc");

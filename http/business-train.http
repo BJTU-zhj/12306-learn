@@ -2,11 +2,12 @@ GET http://localhost:8000/business/admin/train/gen-seat/4
 Accept: application/json
 
 
-###
+###测试springboot的内置缓存
 GET http://localhost:8000/business/admin/daily-train/query-list?page=1&size=10
 Accept: application/json
 
 
+###测试redis组件
 ###
 GET http://localhost:8000/business/redis/set/zhj/shenningjie
 Accept: application/json
@@ -17,3 +18,8 @@ token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6
 GET http://localhost:8000/business/redis/get/zhj
 Accept: application/json
 token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6IjEzMDAwMDAwMDAwIiwiaWQiOjIwMTg4NzYwMTI5MDQ4NDEyMTYsImV4cCI6MTc3MzkwMjk1OSwiaWF0IjoxNzcwMzAyOTU5fQ.49UXDrgk-vH8jRZyziniWZc82iTayH-qSaZeFd3IiNQ
+
+
+###测试将springboot缓存换成redis
+GET http://localhost:8000/business/admin/daily-train-ticket/query-list?page=1&size=10
+Accept: application/json
