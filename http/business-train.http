@@ -1,2 +1,12 @@
 GET http://localhost:8000/business/admin/train/gen-seat/4
 Accept: application/json
+
+
+###
+GET http://localhost:8000/business/admin/daily-train/query-list?page=1&size=10
+Accept: application/json
+
+
+###
+GET http://localhost:8000/business/admin/daily-train/query-list2?page=1&size=10
+Accept: application/json

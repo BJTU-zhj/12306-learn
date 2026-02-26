@@ -33,6 +33,14 @@ public class DailyTrainController {
         return new CommonResp<>(pageVO);
     }
 
+    //测试springboot内置缓存的接口
+    @GetMapping("/query-list2")
+    public CommonResp<PageVO<DailyTrainQueryVO>> queryList2(@Valid DailyTrainQueryDTO paseengerQueryDTO){
+
+        PageVO<DailyTrainQueryVO> pageVO = dailyTrainService.queryList2(paseengerQueryDTO);
+        return new CommonResp<>(pageVO);
+    }
+
     @DeleteMapping("/delete/{id}")
     public CommonResp<Object> delete(@PathVariable Long id){
         dailyTrainService.delete(id);

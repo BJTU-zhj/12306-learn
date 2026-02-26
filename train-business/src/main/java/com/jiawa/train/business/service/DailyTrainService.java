@@ -19,6 +19,8 @@ import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +66,20 @@ public class DailyTrainService {
         }
     }
 
+    //缓存更新
+    @CachePut("DailyTrainService.queryList")
+    public PageVO<DailyTrainQueryVO> queryList2(DailyTrainQueryDTO dailyTrainQueryDTO){
+        return queryList(dailyTrainQueryDTO);
+    }
+
+
     //查询列表
+    //此处的注解形式为@CachePut(value = "users", key = "#user.id")，其中value为缓存命名空间，key为缓存的key
+    //这个key一般都和传参有关，当不设置的时候：
+        //当你没有显式指定 key 属性，或者你的方法有多个参数时，Spring 会使用一个叫 SimpleKeyGenerator 的类来生成 Key。
+        //如果你的方法参数是一个 自定义对象（比如 UserQueryCondition），即使两个 condition 对象的属性一模一样（比如 name="张三"），但因为它们是不同的内存对象，默认的 equals 会返回 false。
+        //传参是自定义对象的时候必须重写equals 和 hashCode
+    @Cacheable("DailyTrainService.queryList")
     public PageVO<DailyTrainQueryVO> queryList(DailyTrainQueryDTO dailyTrainQueryDTO){
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
         dailyTrainExample.setOrderByClause("date desc,code asc");
