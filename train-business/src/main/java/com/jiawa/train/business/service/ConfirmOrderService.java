@@ -121,7 +121,7 @@ public class ConfirmOrderService {
     }
 
     //保存确认订单信息
-    public void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
+    public synchronized void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
         //省略业务数据校验、如车次是否存在、余票是否存在、车次是否在有效期内，以及是否同车次重复购买等
         DateTime now=DateTime.now();
 

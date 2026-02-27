@@ -35,7 +35,7 @@
           </div>
       </template>
       <template v-else-if="column.dataIndex==='ydz'">
-        <div v-if="record.ydz > 0">
+        <div v-if="record.ydz >= 0">
           {{record.ydz}}<br/>
           {{record.ydzPrice}}￥
         </div>
@@ -44,7 +44,7 @@
         </div>
       </template>
       <template v-else-if="column.dataIndex==='edz'">
-        <div v-if="record.edz > 0">
+        <div v-if="record.edz >= 0">
           {{record.edz}}<br/>
           {{record.edzPrice}}￥
         </div>
@@ -53,7 +53,7 @@
         </div>
       </template>
       <template v-else-if="column.dataIndex==='rw'">
-        <div v-if="record.rw > 0">
+        <div v-if="record.rw >=0">
           {{record.rw}}<br/>
           {{record.rwPrice}}￥
         </div>
@@ -62,7 +62,7 @@
         </div>
       </template>
       <template v-else-if="column.dataIndex==='yw'">
-        <div v-if="record.yw > 0">
+        <div v-if="record.yw >= 0">
           {{record.yw}}<br/>
           {{record.ywPrice}}￥
         </div>
