@@ -11,6 +11,7 @@ public class TestController {
     @Autowired
     private BusinessFeign businessFeign;
 
+    //此处实验熔断
     @GetMapping("/hello")
     public String hello(){
         String hello =businessFeign.hello();

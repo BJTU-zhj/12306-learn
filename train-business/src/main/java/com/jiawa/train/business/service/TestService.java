@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 public class TestService {
 
     @SentinelResource(value = "hello", blockHandler = "handleException")
-    public String hello(){
+    public String hello() throws InterruptedException {
+        Thread.sleep(50000);
         return "hello world";
     }
 

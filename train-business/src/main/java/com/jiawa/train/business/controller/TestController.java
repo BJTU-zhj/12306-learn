@@ -16,20 +16,21 @@ public class TestController {
     private TestService testService;
 
     @GetMapping("/hello")
-    public String hello(){
+    public String hello() throws InterruptedException {
+        testService.hello();
         return "hello world business";
     }
 
 
 //    @SentinelResource(value = "hello1", blockHandler = "handleException1")
     @GetMapping("/hello1")
-    public String hello1(){
+    public String hello1() throws InterruptedException {
         return testService.hello();
     }
 
 //    @SentinelResource(value = "hello2", blockHandler = "handleException2")
     @GetMapping("hello2")
-    public String hello2(){
+    public String hello2() throws InterruptedException {
         return testService.hello();
     }
 
