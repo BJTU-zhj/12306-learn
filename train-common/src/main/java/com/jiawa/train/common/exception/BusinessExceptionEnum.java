@@ -12,7 +12,8 @@ public enum BusinessExceptionEnum {
     BUSINESS_TRAIN_CARRIAGE_ALREADY_EXIST("该火车该厢号已录入"),
     BUSINESS_TICKET_NOT_ENOUGH("余票不足"),
     BUSINESS_ORDER_EXCEPTION("服务器忙，请稍后重试"),
-    BUSINESS_LOCK_IS_BUSY("锁被占用");
+    BUSINESS_LOCK_IS_BUSY("抢票人数太多，锁被占用请重试"),
+    BUSINESS_SENTINEL("抢票人数太多，被限流请重试");
 
     private String desc;
 

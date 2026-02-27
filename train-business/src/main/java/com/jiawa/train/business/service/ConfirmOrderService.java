@@ -6,6 +6,8 @@ import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -132,6 +134,8 @@ public class ConfirmOrderService {
     }
 
     //保存确认订单信息
+    //引入sentinel进行限流
+    @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
     public  void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
 
 //        //使用redis的分布式锁setnx
@@ -161,11 +165,11 @@ public class ConfirmOrderService {
             }
 
             //测试是否是看们狗模式
-            for (int i = 0; i < 30; i++){
-                LOG.info("循环中，线程号:{}", Thread.currentThread().getName());
-                Thread.sleep(1000);
-                LOG.info("当前锁的剩余过期时间:{}", lock.remainTimeToLive());
-            }
+//            for (int i = 0; i < 30; i++){
+//                LOG.info("循环中，线程号:{}", Thread.currentThread().getName());
+//                Thread.sleep(1000);
+//                LOG.info("当前锁的剩余过期时间:{}", lock.remainTimeToLive());
+//            }
 
             //省略业务数据校验、如车次是否存在、余票是否存在、车次是否在有效期内，以及是否同车次重复购买等
             DateTime now=DateTime.now();
@@ -441,6 +445,13 @@ public class ConfirmOrderService {
                 }
             }
         }
+    }
+
+
+    //sentinel对于确认订单函数这个资源的限流后的处理
+    public void doConfirmBlock(ConfirmOrderDoDTO confirmOrderDoDTO, BlockException e){
+        LOG.info("doConfirm方法被限流");
+        throw new BusinessException(BusinessExceptionEnum.BUSINESS_SENTINEL);
     }
 
 }
