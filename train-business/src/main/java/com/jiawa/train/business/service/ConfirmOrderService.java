@@ -25,6 +25,8 @@ import com.jiawa.train.common.exception.BusinessException;
 import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -49,6 +51,10 @@ public class ConfirmOrderService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    //redission的分布式锁
+    @Resource
+    private RedissonClient redissonClient;
 
     //两个常量，对应一等座和二等座计算偏移值时的map
     private static final Map<String,Integer> YDZ_OFFSET_MAP = new HashMap<>(
@@ -128,18 +134,39 @@ public class ConfirmOrderService {
     //保存确认订单信息
     public  void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
 
-        //使用redis的分布式锁setnx
+//        //使用redis的分布式锁setnx
+//        Boolean lock=stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "1",10, TimeUnit.MILLISECONDS);
+//        // 获取线程名称 (压测时最建议看这个，对应 Tomcat 的线程池)
+//        String threadName = Thread.currentThread().getName();
+//        if(lock){
+//            LOG.info("恭喜，已经获取锁,线程号:{}", threadName);
+//        }else{
+//            LOG.info("锁被占用，请稍后再试,线程号:{}", threadName);
+//            throw new BusinessException(BusinessExceptionEnum.BUSINESS_LOCK_IS_BUSY);
+//        }
         String lockKey=confirmOrderDoDTO.getTrainCode()+"-"+confirmOrderDoDTO.getDate();
-        Boolean lock=stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "1",10, TimeUnit.MILLISECONDS);
-        // 获取线程名称 (压测时最建议看这个，对应 Tomcat 的线程池)
-        String threadName = Thread.currentThread().getName();
-        if(lock){
-            LOG.info("恭喜，已经获取锁,线程号:{}", threadName);
-        }else{
-            LOG.info("锁被占用，请稍后再试,线程号:{}", threadName);
-            throw new BusinessException(BusinessExceptionEnum.BUSINESS_LOCK_IS_BUSY);
-        }
+        RLock lock = null;
         try{
+            lock = redissonClient.getLock(lockKey);
+            //使用redission的分布式锁，非看门狗模式
+            //三个参数，第一个参数是获取锁的等待时间，第二个参数是锁的过期时间，第三个参数是时间单位
+//            boolean tryLock=lock.tryLock(0, 5, TimeUnit.SECONDS);
+            //两个参数，第一个参数是获取锁的等待时间，第二个是时间单位-----看门狗模式，守护线程，主线程结束才会结束，否则一直重置锁的时间
+            boolean tryLock=lock.tryLock(0, TimeUnit.SECONDS);
+            if(tryLock){
+                LOG.info("恭喜，已经获取锁,线程号:{}", Thread.currentThread().getName());
+            }else {
+                LOG.info("锁被占用，请稍后再试,线程号:{}", Thread.currentThread().getName());
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_LOCK_IS_BUSY);
+            }
+
+            //测试是否是看们狗模式
+            for (int i = 0; i < 30; i++){
+                LOG.info("循环中，线程号:{}", Thread.currentThread().getName());
+                Thread.sleep(1000);
+                LOG.info("当前锁的剩余过期时间:{}", lock.remainTimeToLive());
+            }
+
             //省略业务数据校验、如车次是否存在、余票是否存在、车次是否在有效期内，以及是否同车次重复购买等
             DateTime now=DateTime.now();
             Date date=confirmOrderDoDTO.getDate();
@@ -221,8 +248,10 @@ public class ConfirmOrderService {
         }finally {
             //删除锁，而且在finally中执行，防止锁没有被删除，对于上边逻辑代码中如果出错的时候，锁没有被删除的情况，
             // 但是依旧存在上边逻辑如果卡住，锁超时，导致其他线程获取锁从而出现得到超卖现象
-            LOG.info("释放锁，线程号:{}", Thread.currentThread().getName());
-            stringRedisTemplate.delete(lockKey);
+            if(lock!=null&&lock.isHeldByCurrentThread()){
+                LOG.info("释放锁，线程号:{}", Thread.currentThread().getName());
+                lock.unlock();
+            }
         }
     }
 

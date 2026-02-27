@@ -102,6 +102,13 @@
 <!--				<version>8.0.22</version>-->
 <!--			</dependency>-->
 
+<!--			引入redission-->
+			<dependency>
+				<groupId>org.redisson</groupId>
+				<artifactId>redisson-spring-boot-starter</artifactId>
+				<version>3.28.0</version>
+			</dependency>
+
 
 		</dependencies>
 	</dependencyManagement>
