@@ -92,6 +92,8 @@ public class ConfirmOrderService {
 
     @Resource
     private DailyTrainTicketService dailyTrainTicketService ;
+    @Resource
+    private SkTokenService skTokenService;
 
     //保存
     public void save(ConfirmOrderSaveDTO confirmOrderSaveDTO){
@@ -136,7 +138,15 @@ public class ConfirmOrderService {
     //保存确认订单信息
     //引入sentinel进行限流
     @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
+
     public  void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
+        //添加令牌校验
+        boolean isTokenValid =skTokenService.getToken(confirmOrderDoDTO.getDate(),confirmOrderDoDTO.getTrainCode());
+        if(isTokenValid){
+            LOG.info("令牌校验通过");
+        }else{
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_TOKEN_IS_EMPTY);
+        }
 
 //        //使用redis的分布式锁setnx
 //        Boolean lock=stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "1",10, TimeUnit.MILLISECONDS);

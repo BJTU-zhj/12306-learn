@@ -12,6 +12,7 @@ import com.jiawa.train.business.domain.DailyTrainStation;
 import com.jiawa.train.business.domain.SkToken;
 import com.jiawa.train.business.domain.SkTokenExample;
 import com.jiawa.train.business.mapper.SkTokenMapper;
+import com.jiawa.train.business.mapper.custom.SkTokenCustomMapper;
 import com.jiawa.train.common.VO.PageVO;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
@@ -29,6 +30,9 @@ public class SkTokenService {
 
     @Resource
     private SkTokenMapper skTokenMapper;
+
+    @Resource
+    private SkTokenCustomMapper skTokenCustomMapper;
 
     @Resource
     private DailyTrainSeatService dailyTrainSeatService;
@@ -101,6 +105,16 @@ public class SkTokenService {
         skToken.setCreateTime(now);
         skToken.setUpdateTime(now);
         skTokenMapper.insert(skToken);
+    }
+
+    //获取令牌
+    public Boolean getToken(Date date, String trainCode){
+        Integer isVail=skTokenCustomMapper.decrease(date, trainCode);
+        if(isVail>0){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }
