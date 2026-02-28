@@ -50,6 +50,9 @@ public class DailyTrainService {
     @Resource
     private DailyTrainTicketService dailyTrainTicketService;
 
+    @Resource
+    private SkTokenService skTokenService;
+
     //保存
     public void save(DailyTrainSaveDTO dailyTrainSaveDTO){
         DateTime now=DateTime.now();
@@ -152,6 +155,8 @@ public class DailyTrainService {
             //生成当前车次的每日余票数据
             dailyTrainTicketService.genDaily(date,train.getCode(),dailyTrain);
 
+            //生成当前车次的每日令牌数据
+            skTokenService.genDaily(date,train.getCode());
         }
     }
 

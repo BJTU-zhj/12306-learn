@@ -111,4 +111,13 @@ public class DailyTrainStationService {
         }
         LOG.info("结束生成{}的{}车次车站每日数据", DateUtil.format(date, "yyyy-MM-dd"),trainCode);
     }
+
+    //查询某日某车次所经过的所有车站
+    public List<DailyTrainStation> selectByDateTrain(Date date, String trainCode){
+        DailyTrainStationExample dailyTrainStationExample=new DailyTrainStationExample();
+        dailyTrainStationExample.createCriteria()
+                .andDateEqualTo(date)
+                .andTrainCodeEqualTo(trainCode);
+        return dailyTrainStationMapper.selectByExample(dailyTrainStationExample);
+    }
 }
