@@ -78,6 +78,11 @@
             <UnorderedListOutlined /> &nbsp; 业务管理
           </span>
         </template>
+        <a-menu-item key="/business/sk-token">
+          <router-link to="/business/sk-token">
+            <user-outlined /> &nbsp; 令牌信息
+          </router-link>
+        </a-menu-item>
         <a-menu-item key="/business/confirm-order">
           <router-link to="/business/confirm-order">
             <user-outlined /> &nbsp; 订单信息
