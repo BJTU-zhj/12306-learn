@@ -28,6 +28,7 @@ import com.jiawa.train.common.exception.BusinessException;
 import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
+import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -141,6 +142,29 @@ public class ConfirmOrderService {
     @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
 
     public  void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
+
+        //验证码校验
+        String imageCodeToken=confirmOrderDoDTO.getImageCodeToken();
+        RBucket<String> bucket = redissonClient.getBucket(imageCodeToken);
+        String imageCodeCorret = bucket.get();
+        LOG.info("当前验证码：{}", imageCodeCorret);
+        LOG.info("传输进来的验证码：{}", confirmOrderDoDTO.getImageCode());
+        if(StrUtil.isEmpty(imageCodeCorret)){
+            LOG.info("验证码已过期，请重新请求并验证");
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_IMAGE_CODE_TIME_OUT);
+        }
+        else{
+            if(!imageCodeCorret.equals(confirmOrderDoDTO.getImageCode().toLowerCase())){
+                LOG.info("验证码错误，请重新输入");
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_IMAGE_CODE_ERROR);
+            }else{
+                //移除验证码
+                bucket.delete();
+            }
+        }
+
+
+
         //添加令牌校验
         boolean isTokenValid =skTokenService.getToken(confirmOrderDoDTO.getDate(),confirmOrderDoDTO.getTrainCode(),LoginMemberContext.getId());
         if(isTokenValid){

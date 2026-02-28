@@ -23,3 +23,8 @@ token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE3NzAzMDI5NTksIm1vYmlsZSI6
 ###测试将springboot缓存换成redis
 GET http://localhost:8000/business/admin/daily-train-ticket/query-list?page=1&size=10
 Accept: application/json
+
+
+###测试图片验证码
+GET http://localhost:8000/business/kaptcha/image-code/123
+Accept: application/json

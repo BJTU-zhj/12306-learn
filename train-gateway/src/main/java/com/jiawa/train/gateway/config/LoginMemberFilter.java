@@ -29,7 +29,8 @@ public class LoginMemberFilter implements GlobalFilter, Ordered {
         if(path.contains("admin")
         || path.contains("hello")
         || path.contains("member/member/send-code")
-        || path.contains("member/member/login")){
+        || path.contains("member/member/login")
+        || path.contains("/kaptcha")){
             LOG.info("不需要验证JWT，{}", path);
             return chain.filter(exchange);
         }else{

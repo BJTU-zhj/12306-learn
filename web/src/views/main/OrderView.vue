@@ -59,7 +59,7 @@
   <a-modal v-model:visible="visible" title="请核对以下信息"
            style="top: 50px; width: 800px"
            ok-text="确认" cancel-text="取消"
-            @ok="handleOk">
+            @ok="showFirstImageCodeModal">
     <div class="order-tickets">
       <a-row class="order-tickets-header" v-if="tickets.length > 0">
         <a-col :span="3">乘客</a-col>
@@ -108,6 +108,23 @@
     </div>
   </a-modal>
 
+  <!-- 第一层验证码 后端 -->
+  <a-modal v-model:visible="imageCodeModalVisible" :title="null" :footer="null" :closable="false"
+           style="top: 50px; width: 400px">
+    <p style="text-align: center; font-weight: bold; font-size: 18px">
+      使用服务端验证码削弱瞬时高峰<br/>
+      防止机器人刷票
+    </p>
+    <p>
+      <a-input v-model:value="imageCode" placeholder="图片验证码">
+        <template #suffix>
+          <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>
+        </template>
+      </a-input>
+    </p>
+    <a-button type="primary" danger @click="handleOk">输入验证码后开始购票</a-button>
+  </a-modal>
+
 </template>
 <script>
 import {computed, defineComponent, onMounted, ref, watch} from 'vue';
@@ -126,6 +143,10 @@ export default defineComponent({
     //是否支持选座，0表示不支持，1表示一等座，2表示二等座
     const chooseSeatType=ref(0);
     const visible=ref(false);
+    const imageCode=ref();
+    const imageCodeSrc=ref();
+    const imageCodeModalVisible=ref(false);
+    const imageCodeToken=ref();
     //车次提供的座位类型seatTypes，含票价，余票等信息，例：
     // {
     //   type: "YDZ",
@@ -176,6 +197,23 @@ export default defineComponent({
         }
       })
     };
+
+    /**
+     * 显示第一层验证码弹出框
+     */
+    const showFirstImageCodeModal = () => {
+      loadImageCode();
+      imageCodeModalVisible.value = true;
+    };
+
+    /**
+     * 加载第一层验证码
+     */
+    // const loadFirstImageCode = () => {
+    //   // 获取1~10的数：Math.floor(Math.random()*10 + 1)
+    //   firstImageCodeSourceA.value = Math.floor(Math.random()*10 + 1) + 10;
+    //   firstImageCodeSourceB.value = Math.floor(Math.random()*10 + 1) + 20;
+    // };
 
     //监控勾选情况
     watch(()=>passengerChecks.value,()=>{
@@ -259,7 +297,15 @@ export default defineComponent({
 
       //弹出确认页面
       visible.value=true;
-    }
+    };
+
+    /**
+     * 加载图形验证码
+     */
+    const loadImageCode = () => {
+      imageCodeToken.value = Tool.uuid(8);
+      imageCodeSrc.value = process.env.VUE_APP_SERVER + '/business/kaptcha/image-code/' + imageCodeToken.value;
+    };
 
 
     // 根据选择的座位类型，计算出对应的列，比如要选的是一等座，就筛选出ACDF，要选的是二等座，就筛选出ABCDF
@@ -285,6 +331,12 @@ export default defineComponent({
 
     //确认提交订单执行
     const handleOk=()=>{
+      //判断验证码为空得到情况
+      if (Tool.isEmpty(imageCode.value)) {
+        notification.error({description: '验证码不能为空'});
+        return;
+      }
+
       // 设置每张票的座位
       // 先清空购票列表的座位，有可能之前选了并设置座位了，但选座数不对被拦截了，又重新选一遍
       for (let i = 0; i < tickets.value.length; i++) {
@@ -318,15 +370,15 @@ export default defineComponent({
         start: dailyTrainTicket.start,
         end: dailyTrainTicket.end,
         tickets: tickets.value,
-        // imageCodeToken: imageCodeToken.value,
-        // imageCode: imageCode.value,
+        imageCodeToken: imageCodeToken.value,
+        imageCode: imageCode.value,
         // lineNumber: lineNumber.value
       }).then((response) => {
         let data = response.data;
         if (data.success) {
           notification.success({description: "下单成功！"});
           visible.value = false;
-          // imageCodeModalVisible.value = false;
+          imageCodeModalVisible.value = false;
           // lineModalVisible.value = true;
           // confirmOrderId.value = data.content;
           // queryLineCount();
@@ -355,7 +407,13 @@ export default defineComponent({
       chooseSeatType,
       SEAT_COL_ARRAY,
       chooseSeatObj,
-      handleOk
+      handleOk,
+      showFirstImageCodeModal,
+      imageCode,
+      imageCodeSrc,
+      imageCodeToken,
+      imageCodeModalVisible,
+      loadImageCode
     };
   },
 });
