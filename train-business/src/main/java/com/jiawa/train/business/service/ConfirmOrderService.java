@@ -18,6 +18,7 @@ import com.jiawa.train.business.DTO.ConfirmOrderTicketDTO;
 import com.jiawa.train.business.VO.ConfirmOrderQueryVO;
 import com.jiawa.train.business.domain.*;
 import com.jiawa.train.business.enums.ConfirmOrderStatusEnum;
+import com.jiawa.train.business.enums.RedisKeyPreEnum;
 import com.jiawa.train.business.enums.SeatColEnum;
 import com.jiawa.train.business.enums.SeatTypeEnum;
 import com.jiawa.train.business.mapper.ConfirmOrderMapper;
@@ -158,7 +159,7 @@ public class ConfirmOrderService {
 //            LOG.info("锁被占用，请稍后再试,线程号:{}", threadName);
 //            throw new BusinessException(BusinessExceptionEnum.BUSINESS_LOCK_IS_BUSY);
 //        }
-        String lockKey=confirmOrderDoDTO.getTrainCode()+"-"+confirmOrderDoDTO.getDate();
+        String lockKey= RedisKeyPreEnum.CONFIRM_ORDER_LOCK.getCode()+confirmOrderDoDTO.getTrainCode()+"-"+confirmOrderDoDTO.getDate();
         RLock lock = null;
         try{
             lock = redissonClient.getLock(lockKey);

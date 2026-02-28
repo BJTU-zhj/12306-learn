@@ -1,6 +1,7 @@
 package com.jiawa.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -11,6 +12,7 @@ import com.jiawa.train.business.VO.SkTokenQueryVO;
 import com.jiawa.train.business.domain.DailyTrainStation;
 import com.jiawa.train.business.domain.SkToken;
 import com.jiawa.train.business.domain.SkTokenExample;
+import com.jiawa.train.business.enums.RedisKeyPreEnum;
 import com.jiawa.train.business.mapper.SkTokenMapper;
 import com.jiawa.train.business.mapper.custom.SkTokenCustomMapper;
 import com.jiawa.train.common.VO.PageVO;
@@ -18,6 +20,7 @@ import com.jiawa.train.common.exception.BusinessException;
 import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
+import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -102,7 +105,7 @@ public class SkTokenService {
         //然后获取该车所途径的所有车站
         List<DailyTrainStation> dailyTrainStationList = dailyTrainStationService.selectByDateTrain(date, trainCode);
         Integer countStation = dailyTrainStationList.size()-1;
-        Integer countToken = (int) (countSeat * countStation * 0.75);
+        Integer countToken =  countSeat * countStation;
         //构造对象保存
         DateTime now = DateTime.now();
         SkToken skToken = new SkToken();
@@ -119,7 +122,7 @@ public class SkTokenService {
     public Boolean getToken(Date date, String trainCode, Long memberId){
 
         //先抢令牌的分布式锁
-        String lockKey=date+"-"+trainCode+memberId.toString();
+        String lockKey= RedisKeyPreEnum.TICKET_TOKEN_LOCK.getCode()+date+"-"+trainCode+memberId.toString();
         RLock rLock=redissonClient.getLock(lockKey);
         try {
             boolean tryLock=rLock.tryLock(0,5, TimeUnit.SECONDS);
@@ -132,13 +135,60 @@ public class SkTokenService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        //查询令牌库存
-        Integer isVail=skTokenCustomMapper.decrease(date, trainCode);
-        if(isVail>0){
-            return true;
-        }else{
-            return false;
+
+        //查询令牌库存-为避免数据库压力过大，使用缓存
+        //首先尝试查缓存
+        String countKey=RedisKeyPreEnum.TICKET_TOKEN_CACHE.getCode()+date+"-"+trainCode;
+        RAtomicLong rAtomicLong=redissonClient.getAtomicLong(countKey);
+        //如果缓存有数据，则直接返回
+        if(rAtomicLong.isExists()){
+            LOG.info("缓存有令牌库存，{}",countKey);
+            //减一后并获取值
+            Long count=rAtomicLong.decrementAndGet();
+            //重置缓存时间
+            rAtomicLong.expire(60,TimeUnit.MINUTES);
+            if(count<0L){
+                LOG.info("令牌已售空！缓存值为{}", count);
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_TOKEN_CACHE_ZERO);
+            }
+            //缓存还够
+            else{
+                //每五次同步一下数据库
+                if(rAtomicLong.get()%5==0){
+                    skTokenCustomMapper.decrease(date, trainCode,5);
+                }
+                return true;
+            }
         }
+        //缓存没有数据，则从数据库中获取
+        else{
+            SkTokenExample skTokenExample = new SkTokenExample();
+            skTokenExample.createCriteria().andDateEqualTo( date).andTrainCodeEqualTo( trainCode);
+            List<SkToken> skTokenList = skTokenMapper.selectByExample(skTokenExample);
+            if(CollUtil.isEmpty(skTokenList)){
+                LOG.info("找不到{}日期的{}车次的令牌库存信息",date,trainCode);
+                return false;
+            }
+            rAtomicLong.set(skTokenList.get(0).getCount()-1);
+            rAtomicLong.expire(60,TimeUnit.MINUTES);
+
+            if(skTokenList.get(0).getCount()<0){
+                LOG.info("令牌已售空！数据库值为0");
+                return false;
+            }
+            //同步数据库
+            skTokenCustomMapper.decrease(date, trainCode,1);
+            return true;
+
+        }
+
+
+//        Integer isVail=skTokenCustomMapper.decrease(date, trainCode);
+//        if(isVail>0){
+//            return true;
+//        }else{
+//            return false;
+//        }
     }
 
 }
