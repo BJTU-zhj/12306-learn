@@ -141,7 +141,7 @@ public class ConfirmOrderService {
 
     public  void doConfirm(ConfirmOrderDoDTO confirmOrderDoDTO){
         //添加令牌校验
-        boolean isTokenValid =skTokenService.getToken(confirmOrderDoDTO.getDate(),confirmOrderDoDTO.getTrainCode());
+        boolean isTokenValid =skTokenService.getToken(confirmOrderDoDTO.getDate(),confirmOrderDoDTO.getTrainCode(),LoginMemberContext.getId());
         if(isTokenValid){
             LOG.info("令牌校验通过");
         }else{

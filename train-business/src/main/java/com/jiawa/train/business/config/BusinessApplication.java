@@ -41,7 +41,7 @@ public class BusinessApplication {
 		rule.setResource("doConfirm");
 		rule.setGrade(RuleConstant.FLOW_GRADE_QPS);
 		// Set limit QPS to 20.
-		rule.setCount(1);
+		rule.setCount(5);
 		rules.add(rule);
 		FlowRuleManager.loadRules(rules);
 	}

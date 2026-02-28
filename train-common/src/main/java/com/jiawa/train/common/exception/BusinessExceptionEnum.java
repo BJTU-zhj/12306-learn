@@ -14,7 +14,8 @@ public enum BusinessExceptionEnum {
     BUSINESS_ORDER_EXCEPTION("服务器忙，请稍后重试"),
     BUSINESS_LOCK_IS_BUSY("抢票人数太多，锁被占用请重试"),
     BUSINESS_SENTINEL("抢票人数太多，被限流请重试"),
-    BUSINESS_TICKET_TOKEN_IS_EMPTY("令牌校验失败！");
+    BUSINESS_TICKET_TOKEN_IS_EMPTY("令牌校验失败！"),
+    BUSINESS_TICKET_TOKEN_LOCK_IS_BUSY("请勿频繁提交！");
 
     private String desc;
 

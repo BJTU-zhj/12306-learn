@@ -14,14 +14,19 @@ import com.jiawa.train.business.domain.SkTokenExample;
 import com.jiawa.train.business.mapper.SkTokenMapper;
 import com.jiawa.train.business.mapper.custom.SkTokenCustomMapper;
 import com.jiawa.train.common.VO.PageVO;
+import com.jiawa.train.common.exception.BusinessException;
+import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class SkTokenService {
@@ -39,6 +44,9 @@ public class SkTokenService {
 
     @Resource
     private DailyTrainStationService dailyTrainStationService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     //保存
     public void save(SkTokenSaveDTO skTokenSaveDTO){
@@ -107,8 +115,24 @@ public class SkTokenService {
         skTokenMapper.insert(skToken);
     }
 
-    //获取令牌
-    public Boolean getToken(Date date, String trainCode){
+    //获取令牌，加上分布式锁并且不删除锁可以防止同一个用户机器人刷票，此处不应该使用看门狗方式
+    public Boolean getToken(Date date, String trainCode, Long memberId){
+
+        //先抢令牌的分布式锁
+        String lockKey=date+"-"+trainCode+memberId.toString();
+        RLock rLock=redissonClient.getLock(lockKey);
+        try {
+            boolean tryLock=rLock.tryLock(0,5, TimeUnit.SECONDS);
+            if(tryLock){
+                LOG.info("获取令牌锁成功，接下来开始尝试获取令牌！");
+            }else{
+                LOG.info("获取令牌锁失败，请稍后再试！");
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_TOKEN_LOCK_IS_BUSY);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        //查询令牌库存
         Integer isVail=skTokenCustomMapper.decrease(date, trainCode);
         if(isVail>0){
             return true;
