@@ -28,3 +28,4 @@ Accept: application/json
 ###测试图片验证码
 GET http://localhost:8000/business/kaptcha/image-code/123
 Accept: application/json
+

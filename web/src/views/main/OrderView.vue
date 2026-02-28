@@ -108,7 +108,7 @@
     </div>
   </a-modal>
 
-  <!-- 第一层验证码 后端 -->
+  <!-- 第二层验证码界面 后端 -->
   <a-modal v-model:visible="imageCodeModalVisible" :title="null" :footer="null" :closable="false"
            style="top: 50px; width: 400px">
     <p style="text-align: center; font-weight: bold; font-size: 18px">
