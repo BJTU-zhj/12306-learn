@@ -125,6 +125,8 @@
     <a-button type="primary" danger @click="handleOk">输入验证码后开始购票</a-button>
   </a-modal>
 
+
+
 <!--  排队购票-->
   <a-modal v-model:visible="lineModalVisible" title="排队购票" :footer="null" :maskClosable="false" :closable="false"
            style="top: 50px; width: 400px">
@@ -367,7 +369,27 @@ export default defineComponent({
     };
 
 
-
+    /**
+     * 取消排队
+     */
+    const onCancelOrder = () => {
+      axios.get("/business/confirm-order/cancel/" + confirmOrderId.value).then((response) => {
+        let data = response.data;
+        if (data.success) {
+          let result = data.content;
+          if (result === 1) {
+            notification.success({description: "取消成功！"});
+            // 取消成功时，不用再轮询排队结果
+            clearInterval(queryLineCountInterval);
+            lineModalVisible.value = false;
+          } else {
+            notification.error({description: "取消失败！"});
+          }
+        } else {
+          notification.error({description: data.message});
+        }
+      });
+    };
 
 
     // 根据选择的座位类型，计算出对应的列，比如要选的是一等座，就筛选出ACDF，要选的是二等座，就筛选出ABCDF
@@ -479,7 +501,8 @@ export default defineComponent({
       lineModalVisible,
       confirmOrderId,
       queryLineCount,
-      confirmOrderLineCount
+      confirmOrderLineCount,
+      onCancelOrder
     };
   },
 });

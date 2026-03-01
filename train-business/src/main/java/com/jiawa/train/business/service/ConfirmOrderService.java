@@ -220,11 +220,10 @@ public class ConfirmOrderService {
 
         //为了测试排队功能，休眠1秒
 //        try {
-//            Thread.sleep(1000);
+//            Thread.sleep(10000);
 //        }catch (InterruptedException e){
 //            LOG.error("睡眠异常！", e);
 //        }
-
 
         //构造订单参数
         ConfirmOrderDoDTO confirmOrderDoDTO = new ConfirmOrderDoDTO();
@@ -500,6 +499,17 @@ public class ConfirmOrderService {
         confirmOrderExample.createCriteria().andIdEqualTo(confirmOrder.getId());
         confirmOrder.setStatus(confirmOrderStatusEnum.getCode());
         confirmOrderMapper.updateByExampleSelective(confirmOrder,confirmOrderExample);
+    }
+
+
+    //取消排队并设置状态
+    public int cancelOrderLine(Long confirmOrderId){
+        ConfirmOrderExample confirmOrderExample=new ConfirmOrderExample();
+        ConfirmOrderExample.Criteria criteria=confirmOrderExample.createCriteria();
+        criteria.andIdEqualTo(confirmOrderId).andStatusEqualTo(ConfirmOrderStatusEnum.INIT.getCode());
+        ConfirmOrder confirmOrder=new ConfirmOrder();
+        confirmOrder.setStatus(ConfirmOrderStatusEnum.CANCEL.getCode());
+        return confirmOrderMapper.updateByExampleSelective(confirmOrder,confirmOrderExample);
     }
 
 
