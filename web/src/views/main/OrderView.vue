@@ -125,6 +125,21 @@
     <a-button type="primary" danger @click="handleOk">输入验证码后开始购票</a-button>
   </a-modal>
 
+<!--  排队购票-->
+  <a-modal v-model:visible="lineModalVisible" title="排队购票" :footer="null" :maskClosable="false" :closable="false"
+           style="top: 50px; width: 400px">
+    <div class="book-line">
+      <div v-show="confirmOrderLineCount < 0">
+        <loading-outlined /> 系统正在处理中...
+      </div>
+      <div v-show="confirmOrderLineCount >= 0">
+        <loading-outlined /> 您前面还有{{confirmOrderLineCount}}位用户在购票，排队中，请稍候
+      </div>
+    </div>
+    <br/>
+    <a-button type="primary" danger @click="onCancelOrder">取消购票</a-button>
+  </a-modal>
+
 </template>
 <script>
 import {computed, defineComponent, onMounted, ref, watch} from 'vue';
@@ -147,6 +162,11 @@ export default defineComponent({
     const imageCodeSrc=ref();
     const imageCodeModalVisible=ref(false);
     const imageCodeToken=ref();
+
+    // 排队系统
+    const lineModalVisible=ref(false);
+    const confirmOrderId=ref();
+    const confirmOrderLineCount = ref(-1);
     //车次提供的座位类型seatTypes，含票价，余票等信息，例：
     // {
     //   type: "YDZ",
@@ -307,6 +327,48 @@ export default defineComponent({
       imageCodeSrc.value = process.env.VUE_APP_SERVER + '/business/kaptcha/image-code/' + imageCodeToken.value;
     };
 
+    /* ------------------- 定时查询订单状态 --------------------- */
+
+    //确认订单后定时查询
+    let queryLineCountInterval;
+
+    // 定时查询订单结果/排队数量
+    const queryLineCount = () => {
+      confirmOrderLineCount.value = -1;
+      queryLineCountInterval = setInterval(function () {
+        axios.get("/business/confirm-order/query-line-count/" + confirmOrderId.value).then((response) => {
+          let data = response.data;
+          if (data.success) {
+            let result = data.content;
+            switch (result) {
+              case -1 :
+                notification.success({description: "购票成功！"});
+                lineModalVisible.value = false;
+                clearInterval(queryLineCountInterval);
+                break;
+              case -2:
+                notification.error({description: "购票失败！"});
+                lineModalVisible.value = false;
+                clearInterval(queryLineCountInterval);
+                break;
+              case -3:
+                notification.error({description: "抱歉，没票了！"});
+                lineModalVisible.value = false;
+                clearInterval(queryLineCountInterval);
+                break;
+              default:
+                confirmOrderLineCount.value = result;
+            }
+          } else {
+            notification.error({description: data.message});
+          }
+        });
+      }, 500);
+    };
+
+
+
+
 
     // 根据选择的座位类型，计算出对应的列，比如要选的是一等座，就筛选出ACDF，要选的是二等座，就筛选出ABCDF
     const SEAT_COL_ARRAY=computed(()=>{
@@ -376,12 +438,12 @@ export default defineComponent({
       }).then((response) => {
         let data = response.data;
         if (data.success) {
-          notification.success({description: "下单成功！"});
+          // notification.success({description: "下单成功！"});
           visible.value = false;
           imageCodeModalVisible.value = false;
-          // lineModalVisible.value = true;
-          // confirmOrderId.value = data.content;
-          // queryLineCount();
+          lineModalVisible.value = true;
+          confirmOrderId.value = data.content;
+          queryLineCount();
         } else {
           notification.error({description: data.message});
         }
@@ -413,7 +475,11 @@ export default defineComponent({
       imageCodeSrc,
       imageCodeToken,
       imageCodeModalVisible,
-      loadImageCode
+      loadImageCode,
+      lineModalVisible,
+      confirmOrderId,
+      queryLineCount,
+      confirmOrderLineCount
     };
   },
 });

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiawa.train.business.mapper.custom.ConfirmOrderCustomMapper">
+
+  <select id="queryLineQueue" resultType="java.lang.Integer">
+    SELECT count(1)
+    FROM confirm_order
+    WHERE date = #{date}
+      AND train_code = #{trainCode}
+      AND status IN ('I', 'P')
+      AND (
+      create_time &lt; #{createTime}
+       OR (create_time = #{createTime} AND id &lt; #{id})
+      )
+  </select>
+
+</mapper>

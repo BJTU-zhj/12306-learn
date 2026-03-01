@@ -218,6 +218,14 @@ public class ConfirmOrderService {
     //新增一个orderSell函数
     public void orderSell(ConfirmOrder confirmOrder) {
 
+        //为了测试排队功能，休眠1秒
+        try {
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            LOG.error("睡眠异常！", e);
+        }
+
+
         //构造订单参数
         ConfirmOrderDoDTO confirmOrderDoDTO = new ConfirmOrderDoDTO();
         confirmOrderDoDTO.setMemberId(confirmOrder.getMemberId());

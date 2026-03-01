@@ -2,6 +2,7 @@ package com.jiawa.train.business.service;
 
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.EnumUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
@@ -11,6 +12,7 @@ import com.jiawa.train.business.domain.ConfirmOrder;
 import com.jiawa.train.business.enums.ConfirmOrderStatusEnum;
 import com.jiawa.train.business.enums.RocketMQTopicEnum;
 import com.jiawa.train.business.mapper.ConfirmOrderMapper;
+import com.jiawa.train.business.mapper.custom.ConfirmOrderCustomMapper;
 import com.jiawa.train.common.context.LoginMemberContext;
 import com.jiawa.train.common.exception.BusinessException;
 import com.jiawa.train.common.exception.BusinessExceptionEnum;
@@ -43,9 +45,12 @@ public class BeforeConfirmOrderService {
     @Resource
     private ConfirmOrderMapper confirmOrderMapper;
 
+    @Resource
+    private ConfirmOrderCustomMapper confirmOrderCustomMapper;
+
     //引入sentinel进行限流
     @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
-    public void beforeConfirmOrder(ConfirmOrderDoDTO confirmOrderDoDTO) {
+    public Long beforeConfirmOrder(ConfirmOrderDoDTO confirmOrderDoDTO) {
         //验证码校验
 //        String imageCodeToken=confirmOrderDoDTO.getImageCodeToken();
 //        RBucket<String> bucket = redissonClient.getBucket(imageCodeToken);
@@ -109,6 +114,32 @@ public class BeforeConfirmOrderService {
         LOG.info("排队购票，开始发送mq消息:{}", respJson);
         rocketMQTemplate.convertAndSend(RocketMQTopicEnum.CONFIRM_ORDER_TOPIC.getCode(), respJson);
         LOG.info("排队购票，结束发送mq消息");
+
+        return confirmOrder.getId();
+    }
+
+
+    //查询订单状态，如果处于初始化和待处理状态，则返回排队数，否则返回其他状态码
+    public int queryLineQueue(Long confirmOrderId){
+        //首先查数据库中订单的状态
+        ConfirmOrder confirmOrder = confirmOrderMapper.selectByPrimaryKey(confirmOrderId);
+        ConfirmOrderStatusEnum statusEnum = EnumUtil.getBy(ConfirmOrderStatusEnum::getCode,confirmOrder.getStatus());
+        int result=switch (statusEnum){
+            case PENDING -> 0; // 待处理，要排队
+            case SUCCESS -> -1; // 成功
+            case FAILURE -> -2; // 失败
+            case EMPTY -> -3; // 无票
+            case CANCEL -> -4; // 取消
+            case INIT -> 999;//初始化，要排队
+        };
+        //针对初始化和待处理状态的订单需要查询排队数
+        if(result==999){
+            Date currOrderCreateTime = confirmOrder.getCreateTime();
+            Date date = confirmOrder.getDate();
+            String trainCode = confirmOrder.getTrainCode();
+            result=confirmOrderCustomMapper.queryLineQueue(date,trainCode,confirmOrderId,currOrderCreateTime);
+        }
+        return result;
     }
 
 
