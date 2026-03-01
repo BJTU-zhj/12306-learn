@@ -145,7 +145,7 @@ public class SkTokenService {
             //减一后并获取值
             Long count=rAtomicLong.decrementAndGet();
             //重置缓存时间
-            rAtomicLong.expire(5,TimeUnit.MINUTES);
+            rAtomicLong.expire(5,TimeUnit.SECONDS);
             if(count<0L){
                 LOG.info("令牌已售空！缓存值为{}", count);
                 throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_TOKEN_CACHE_ZERO);
@@ -169,7 +169,7 @@ public class SkTokenService {
                 return false;
             }
             rAtomicLong.set(skTokenList.get(0).getCount()-1);
-            rAtomicLong.expire(60,TimeUnit.MINUTES);
+            rAtomicLong.expire(5,TimeUnit.SECONDS);
 
             if(skTokenList.get(0).getCount()<0){
                 LOG.info("令牌已售空！数据库值为0");

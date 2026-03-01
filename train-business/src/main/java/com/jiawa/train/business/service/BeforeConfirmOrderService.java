@@ -19,7 +19,6 @@ import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -34,9 +33,6 @@ public class BeforeConfirmOrderService {
 
 
     @Resource
-    private RedissonClient redissonClient;
-
-    @Resource
     private RocketMQTemplate rocketMQTemplate;
 
     @Resource
@@ -49,7 +45,7 @@ public class BeforeConfirmOrderService {
     private ConfirmOrderCustomMapper confirmOrderCustomMapper;
 
     //引入sentinel进行限流
-    @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
+    @SentinelResource(value = "beforeDoConfirm",blockHandler = "doConfirmBlock")
     public Long beforeConfirmOrder(ConfirmOrderDoDTO confirmOrderDoDTO) {
         //验证码校验
 //        String imageCodeToken=confirmOrderDoDTO.getImageCodeToken();
@@ -144,7 +140,7 @@ public class BeforeConfirmOrderService {
 
 
     //sentinel对于确认订单函数这个资源的限流后的处理
-    public void doConfirmBlock(ConfirmOrderDoDTO confirmOrderDoDTO, BlockException e){
+    public Long doConfirmBlock(ConfirmOrderDoDTO confirmOrderDoDTO, BlockException e){
         LOG.info("doConfirm方法被限流");
         throw new BusinessException(BusinessExceptionEnum.BUSINESS_SENTINEL);
     }
