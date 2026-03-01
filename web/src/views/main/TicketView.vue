@@ -1,7 +1,7 @@
 <template>
   <p>
     <a-space>
-      <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期" />
+      <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" :disabled-date="disabledDate" placeholder="请选择日期" />
       <train-station-select-view v-model:value="params.start" placeholder="请选择出发站" />
       <train-station-select-view v-model:value="params.end" placeholder="请选择终点站" />
       <a-button type="primary" @click="handleQuery()">查找</a-button>
@@ -17,7 +17,7 @@
       <template v-if="column.dataIndex === 'operation'">
 
         <a-space>
-          <a-button type="primary" @click="toOrder(record)">预订</a-button>
+          <a-button type="primary" @click="toOrder(record)" :disabled="isExpire(record)">{{isExpire(record) ? "过期" : "预订"}}</a-button>
           <a-button type="primary" @click="showStation(record)">途经车站</a-button>
         </a-space>
 
@@ -378,6 +378,24 @@ export default defineComponent({
       });
     };
 
+    // 不能选择今天以前及两周以后的日期
+    const disabledDate = current => {
+      return current && (current <= dayjs().add(-1, 'day') || current > dayjs().add(14, 'day'));
+    };
+
+    // 判断是否过期
+    const isExpire = (record) => {
+      // 标准时间：2000/01/01 00:00:00
+      let startDateTimeString = record.date.replace(/-/g, "/") + " " + record.startTime;
+      let startDateTime = new Date(startDateTimeString);
+
+      //当前时间
+      let now = new Date();
+
+      console.log(startDateTime)
+      return now.valueOf() >= startDateTime.valueOf();
+    };
+
     const handleTableChange = (page) => {
       // console.log("看看自带的分页参数都有啥：" + page);
       handleQuery({
@@ -414,7 +432,9 @@ export default defineComponent({
       toOrder,
       stations,
       showStation,
-      visibleStations
+      visibleStations,
+      disabledDate,
+      isExpire
     };
   },
 });
