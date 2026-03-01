@@ -21,7 +21,6 @@ import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.redisson.api.RAtomicLong;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,19 +121,19 @@ public class SkTokenService {
     public Boolean getToken(Date date, String trainCode, Long memberId){
 
         //先抢令牌的分布式锁
-        String lockKey= RedisKeyPreEnum.TICKET_TOKEN_LOCK.getCode()+date+"-"+trainCode+memberId.toString();
-        RLock rLock=redissonClient.getLock(lockKey);
-        try {
-            boolean tryLock=rLock.tryLock(0,5, TimeUnit.SECONDS);
-            if(tryLock){
-                LOG.info("获取令牌锁成功，接下来开始尝试获取令牌！");
-            }else{
-                LOG.info("获取令牌锁失败，请稍后再试！");
-                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_TOKEN_LOCK_IS_BUSY);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        String lockKey= RedisKeyPreEnum.TICKET_TOKEN_LOCK.getCode()+date+"-"+trainCode+memberId.toString();
+//        RLock rLock=redissonClient.getLock(lockKey);
+//        try {
+//            boolean tryLock=rLock.tryLock(0,5, TimeUnit.SECONDS);
+//            if(tryLock){
+//                LOG.info("获取令牌锁成功，接下来开始尝试获取令牌！");
+//            }else{
+//                LOG.info("获取令牌锁失败，请稍后再试！");
+//                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TICKET_TOKEN_LOCK_IS_BUSY);
+//            }
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
 
         //查询令牌库存-为避免数据库压力过大，使用缓存
         //首先尝试查缓存

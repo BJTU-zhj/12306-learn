@@ -64,11 +64,11 @@ public class ConfirmOrderDoDTO {
     @NotBlank(message = "【图片验证码】参数非法")
     private String imageCodeToken;
 //
-//    /**
-//     * 日志跟踪号
-//     */
-//    private String logId;
-//
+    /**
+     * 日志跟踪号
+     */
+    private String logId;
+
 //    /**
 //     * 加入排队人数，用于体验排队功能
 //     */
@@ -146,13 +146,13 @@ public class ConfirmOrderDoDTO {
         this.imageCodeToken = imageCodeToken;
     }
 //
-//    public String getLogId() {
-//        return logId;
-//    }
-//
-//    public void setLogId(String logId) {
-//        this.logId = logId;
-//    }
+    public String getLogId() {
+        return logId;
+    }
+
+    public void setLogId(String logId) {
+        this.logId = logId;
+    }
 //
 //    public int getLineNumber() {
 //        return lineNumber;
