@@ -15,7 +15,12 @@
            :loading="loading">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
-        <a-button type="primary" @click="toOrder(record)">预订</a-button>
+
+        <a-space>
+          <a-button type="primary" @click="toOrder(record)">预订</a-button>
+          <a-button type="primary" @click="showStation(record)">途经车站</a-button>
+        </a-space>
+
       </template>
       <template v-else-if="column.dataIndex==='station'">
         {{record.start}}<br>
@@ -141,6 +146,30 @@
       </a-form-item>
     </a-form>
   </a-modal>
+
+  <!-- 途经车站 -->
+  <a-modal style="top: 30px" v-model:visible="visibleStations" :title="null" :footer="null" :closable="false">
+    <a-table :data-source="stations" :pagination="false">
+      <a-table-column key="index" title="站序" data-index="index" />
+      <a-table-column key="name" title="站名" data-index="name" />
+      <a-table-column key="inTime" title="进站时间" data-index="inTime">
+        <template #default="{ record }">
+          {{record.index === 0 ? '-' : record.inTime}}
+        </template>
+      </a-table-column>
+      <a-table-column key="outTime" title="出站时间" data-index="outTime">
+        <template #default="{ record }">
+          {{record.index === (stations.length - 1) ? '-' : record.outTime}}
+        </template>
+      </a-table-column>
+      <a-table-column key="stopTime" title="停站时长" data-index="stopTime">
+        <template #default="{ record }">
+          {{record.index === 0 || record.index === (stations.length - 1) ? '-' : record.stopTime}}
+        </template>
+      </a-table-column>
+    </a-table>
+  </a-modal>
+
 </template>
 
 <script>
@@ -329,6 +358,26 @@ export default defineComponent({
       });
     };
 
+    // ---------------------- 途经车站 ----------------------
+    const visibleStations=ref(false);
+    const stations = ref([]);
+    const showStation = record => {
+      visibleStations.value = true;
+      axios.get("/business/daily-train-station/query-by-train-code", {
+        params: {
+          date: record.date,
+          trainCode: record.trainCode
+        }
+      }).then((response) => {
+        let data = response.data;
+        if (data.success) {
+          stations.value = data.content;
+        } else {
+          notification.error({description: data.message});
+        }
+      });
+    };
+
     const handleTableChange = (page) => {
       // console.log("看看自带的分页参数都有啥：" + page);
       handleQuery({
@@ -362,7 +411,10 @@ export default defineComponent({
       onDelete,
       params,
       calDuration,
-      toOrder
+      toOrder,
+      stations,
+      showStation,
+      visibleStations
     };
   },
 });
