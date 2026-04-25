@@ -7,6 +7,8 @@ import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson2.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -130,7 +132,7 @@ public class ConfirmOrderService {
 
     //保存确认订单信息
     //引入sentinel进行限流
-//    @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
+    @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
     public  void doConfirm(ConfirmOrderMQDTO confirmOrderMQDTO){
 
 
@@ -215,15 +217,21 @@ public class ConfirmOrderService {
         }
     }
 
+    public void doConfirmBlock(ConfirmOrderMQDTO confirmOrderMQDTO, BlockException e){
+        LOG.info("doConfirm方法被限流");
+        throw new BusinessException(BusinessExceptionEnum.BUSINESS_SENTINEL);
+    }
+
     //新增一个orderSell函数
     public void orderSell(ConfirmOrder confirmOrder) {
 
         //为了测试排队功能，休眠1秒
-//        try {
-//            Thread.sleep(10000);
-//        }catch (InterruptedException e){
-//            LOG.error("睡眠异常！", e);
-//        }
+        try {
+            Thread.sleep(5000);
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+            LOG.error("睡眠异常！", e);
+        }
 
         //构造订单参数
         ConfirmOrderDoDTO confirmOrderDoDTO = new ConfirmOrderDoDTO();

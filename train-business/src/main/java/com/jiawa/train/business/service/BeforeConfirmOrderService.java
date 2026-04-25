@@ -3,6 +3,7 @@ package com.jiawa.train.business.service;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
@@ -19,6 +20,8 @@ import com.jiawa.train.common.exception.BusinessExceptionEnum;
 import com.jiawa.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -44,32 +47,31 @@ public class BeforeConfirmOrderService {
     @Resource
     private ConfirmOrderCustomMapper confirmOrderCustomMapper;
 
+    @Resource
+    private RedissonClient redissonClient;
+
     //引入sentinel进行限流
     @SentinelResource(value = "beforeDoConfirm",blockHandler = "doConfirmBlock")
     public Long beforeConfirmOrder(ConfirmOrderDoDTO confirmOrderDoDTO) {
         //验证码校验
-//        String imageCodeToken=confirmOrderDoDTO.getImageCodeToken();
-//        RBucket<String> bucket = redissonClient.getBucket(imageCodeToken);
-//        String imageCodeCorret = bucket.get();
-//        LOG.info("当前验证码：{}", imageCodeCorret);
-//        LOG.info("传输进来的验证码：{}", confirmOrderDoDTO.getImageCode());
-//        if(StrUtil.isEmpty(imageCodeCorret)){
-//            LOG.info("验证码已过期，请重新请求并验证");
-//            throw new BusinessException(BusinessExceptionEnum.BUSINESS_IMAGE_CODE_TIME_OUT);
-//        }
-//        else{
-//            if(!imageCodeCorret.equals(confirmOrderDoDTO.getImageCode().toLowerCase())){
-//                LOG.info("验证码错误，请重新输入");
-//                throw new BusinessException(BusinessExceptionEnum.BUSINESS_IMAGE_CODE_ERROR);
-//            }else{
-//                //移除验证码
-//                bucket.delete();
-//            }
-//        }
+        String imageCodeToken=confirmOrderDoDTO.getImageCodeToken();
+        RBucket<String> bucket = redissonClient.getBucket(imageCodeToken);
+        String imageCodeCorret = bucket.get();
+        LOG.info("当前验证码：{}", imageCodeCorret);
+        LOG.info("传输进来的验证码：{}", confirmOrderDoDTO.getImageCode());
+        if(StrUtil.isEmpty(imageCodeCorret)){
+            LOG.info("验证码已过期，请重新请求并验证");
+            throw new BusinessException(BusinessExceptionEnum.BUSINESS_IMAGE_CODE_TIME_OUT);
+        }
+        else{
+            if(!imageCodeCorret.equals(confirmOrderDoDTO.getImageCode().toLowerCase())){
+                LOG.info("验证码错误，请重新输入");
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_IMAGE_CODE_ERROR);
+            }else{
+                bucket.delete();
+            }
+        }
 
-
-
-//        //添加令牌校验
         boolean isTokenValid =skTokenService.getToken(confirmOrderDoDTO.getDate(),confirmOrderDoDTO.getTrainCode(), LoginMemberContext.getId());
         if(isTokenValid){
             LOG.info("令牌校验通过");

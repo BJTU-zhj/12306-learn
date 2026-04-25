@@ -33,3 +33,5 @@ build/
 .vscode/
 
 log/
+
+private_notes/

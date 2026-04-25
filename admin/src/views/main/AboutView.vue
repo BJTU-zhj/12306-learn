@@ -1,5 +1,5 @@
 <template>
-  <h1>关于甲蛙12306</h1>
+  <h1>关于学习版12306</h1>
 </template>
 <script>
 import { defineComponent } from 'vue';

@@ -1,7 +1,7 @@
 //package com.jiawa.train.batch.config;
 //
 //import com.jiawa.train.batch.job.TestJob;
-//import org.quartz.*;
+//import org.quartz概念备忘录.txt.*;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
 //
