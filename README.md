@@ -126,8 +126,9 @@ train
 ![填写验证码.png](image/%E5%A1%AB%E5%86%99%E9%AA%8C%E8%AF%81%E7%A0%81.png)
 
 
--流程4 后端 Sentinel 限流 -> Redis 令牌控制 -> 初始化订单落库 -> RocketMQ 异步排队 -> Redisson 分布式锁串行出票 -> sell 位图选座 -> Seata 分布式事务落库
-      前端：轮询结果
+-流程4 
+后端 Sentinel 限流 -> Redis 令牌控制 -> 初始化订单落库 -> RocketMQ 异步排队 -> Redisson 分布式锁串行出票 -> sell 位图选座 -> Seata 分布式事务落库 
+前端：轮询结果
 ![轮询排队.png](image/%E8%BD%AE%E8%AF%A2%E6%8E%92%E9%98%9F.png)
 
 
